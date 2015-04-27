@@ -1,0 +1,135 @@
+#!/bin/bash
+# git-gerrit - download, use, and review gerrit patches
+#
+# compatible with git-review configuration files
+#
+# Copyright 2015 Kylie McClain <somasissounds@gmail.com>
+# Distributed under the terms of the ISC license
+
+# initialization
+# functions
+stderr() { # stderr <msg>
+    echo "$@" >&2
+}
+
+debug() { # debug [msg]
+    if [[ -z "$debug" ]];then
+        return 0 # debug not set
+    elif [[ ! -z "$debug" && "$#" -gt 0 ]];then
+        stderr "$@"
+    else
+        return 1
+    fi
+}
+
+die() { # die <err msg> <err_code>
+    local err_msg="$1"
+    local err_code="$2"
+    stderr "$me: $err_msg (error code: $err_code)"
+    exit "$err_code"
+}
+
+in_git_dir() {
+    if ! git rev-parse --git-dir >/dev/null 2>&1;then
+        return 1
+    fi
+}
+
+git() {
+    debug "$me: executing \`git $*\`"
+    command git "$@"
+}
+
+config() {
+    if [[ "$1" == "list" ]];then
+        git config --list
+    elif [[ "$1" == "exist" ]];then
+        shift
+        local var="$1"
+        if git config --get "$var" >/dev/null 2>&1;then
+            return 0 # does exist in config
+        else
+            return 1 # doesn't
+        fi
+    elif [[ "$1" == "set" ]];then
+        shift
+        local var="$1"
+        local value="$2"
+        [[ -z "$value" ]] && local mode='--unset'
+        git config $mode "$var" "$value"
+    elif [[ "$1" == 'get' ]];then
+        shift
+        local var="$1"
+        git config --get "$var"
+    fi
+}
+
+parse_config() {
+    gitreview="${work_dir}/.gitreview"
+    if [[ ! -f "${gitreview}" ]];then
+        die "No .gitreview config in top of work directory" $err_no_gitreview
+    fi
+
+    gerrit_host=$(grep '^host=' "${gitreview}" | cut -d'=' -f2-)
+    gerrit_project=$(grep '^project=' "${gitreview}" | cut -d'=' -f2-)
+    gerrit_port=${gerrit_host##*:}
+    if [[ -z "$gerrit_port" || "$gerrit_port" == "$gerrit_host" ]];then
+        gerrit_port="29418"
+    fi
+
+    if ! config exist remote.gerrit.url;then
+        ssh -o ConnectTimeout=30 -x -p "$gerrit_port" "${gerrit_username}@${gerrit_host}" >/dev/null 2>&1
+        if [[ "$?" -eq 127 ]];then
+            debug "Connected to ${gerrit_username}@${gerrit_host}:${gerrit_port} successfully"
+            gerrit_url="ssh://${gerrit_username}@${gerrit_host}:${gerrit_port}/${gerrit_project}.git"
+        else
+            die "SSH connection to ${gerrit_username}@${gerrit_host}:${gerrit_port} failed!" $err_ssh_failed
+        fi
+
+        stderr "Adding a remote named \"gerrit\" pointing to \"$gerrit_url\"..."
+        git remote add gerrit "${gerrit_url}"
+    else
+        gerrit_url=$(config get remote.gerrit.url | sed "s#/${gerrit_project}.git##;s#.*://##")
+        gerrit_type=$(config get remote.gerrit.url | sed 's#://.*##')
+        debug "Gerrit instance: \"$gerrit_url\" (type: $gerrit_type)"
+    fi
+}
+
+# vars, shopts, etc
+export LC_ALL=C # ensure program outputs are predicatble
+me="git-gerrit"
+
+# error codes - don't set any of these 0 or 1, dummy
+err_not_git_dir=2
+err_bare_repo=3
+err_no_gitreview=4
+err_no_username=5
+err_ssh_failed=6
+
+if ! git rev-parse --git-dir >/dev/null 2>&1;then
+    die "Not a git repository" $err_not_git_dir
+fi
+
+if config exist gitreview.username;then
+    gerrit_username=$(config get gitreview.username)
+else
+    die "You need to set a username to use; \`git config gitreview.username <username>\`" $err_no_username
+fi
+
+if [[ "$(git rev-parse --is-bare-repository)" == 'true' ]];then
+    die "Cowardly refusing to operate on a bare repository" $err_bare_repo
+fi
+
+export git_dir=$(realpath $(git rev-parse --git-dir))
+export work_dir=$(realpath $(git rev-parse --show-toplevel))
+
+parse_config
+
+stderr "git gitdir: $git_dir"
+stderr "git workdir: $work_dir"
+stderr "gitreview: $gitreview"
+stderr "gerrit username: $gerrit_username"
+stderr "gerrit host: $gerrit_host"
+stderr "gerrit project: $gerrit_project"
+stderr "gerrit url: $gerrit_url"
+
