@@ -22,11 +22,16 @@ debug() { # debug [msg]
     fi
 }
 
-die() { # die <err msg> <err_code>
-    local err_msg="$1"
-    local err_code="$2"
-    stderr "$me: $err_msg (error code: $err_code)"
-    exit "$err_code"
+die() { # die <err msg> <err code> or die <err code>
+    if [[ "$#" -gt 1 ]];then
+        local err_msg="$1"
+        local err_code="$2"
+        stderr "$me: $err_msg (error code: $err_code)"
+        exit "$err_code"
+    else
+        local err_code="$1"
+        exit "$err_code"
+    fi
 }
 
 in_git_dir() {
