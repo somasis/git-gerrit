@@ -100,7 +100,7 @@ parse_config() {
         stderr "Adding a remote named \"gerrit\" pointing to \"$gerrit_url\"..."
         git remote add gerrit "${gerrit_url}"
     else
-        gerrit_url=$(config get remote.gerrit.url | sed "s#/${gerrit_project}.git##;s#.*://##")
+        gerrit_url=$(config get remote.gerrit.url | sed "s#/${gerrit_project}.*##;s#.*://##")
         gerrit_type=$(config get remote.gerrit.url | sed 's#://.*##')
         debug "Gerrit instance: \"$gerrit_url\" (type: $gerrit_type)"
     fi
