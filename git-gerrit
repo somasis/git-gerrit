@@ -64,6 +64,17 @@ config() {
     fi
 }
 
+nonfatal() {
+    nonfatal=true
+    eval "$@"
+    nonfatal=
+}
+
+dossh() {
+    debug "$me: executing \`ssh -o ConnectTimeout=30 -x -p \"${gerrit_port}\" \"${gerrit_username}@${gerrit_host}\" \"$@\"\`"
+    ssh -o ConnectTimeout=30 -x -p "${gerrit_port}" "${gerrit_username}@${gerrit_host}" "$@" || { [[ "$nonfatal" ]] || die "dossh failed" 6; }
+}
+
 parse_config() {
     gitreview="${work_dir}/.gitreview"
     if [[ ! -f "${gitreview}" ]];then
@@ -78,7 +89,7 @@ parse_config() {
     fi
 
     if ! config exist remote.gerrit.url;then
-        ssh -o ConnectTimeout=30 -x -p "$gerrit_port" "${gerrit_username}@${gerrit_host}" >/dev/null 2>&1
+        nonfatal dossh >/dev/null 2>&1
         if [[ "$?" -eq 127 ]];then
             debug "Connected to ${gerrit_username}@${gerrit_host}:${gerrit_port} successfully"
             gerrit_url="ssh://${gerrit_username}@${gerrit_host}:${gerrit_port}/${gerrit_project}.git"
