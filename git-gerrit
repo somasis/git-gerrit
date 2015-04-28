@@ -182,6 +182,7 @@ get_patches() {
         #git pull $(debug && echo -v) gerrit re
     done
 }
+
 # vars, shopts, etc
 export LC_ALL=C # ensure program outputs are predicatble
 me="git-gerrit"
@@ -195,7 +196,13 @@ err_no_username=5
 err_ssh_failed=6
 err_args=7
 err_no_results=10
+err_prog_not_installed=70
 
+# make sure that the programs we need are there
+type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
+type -fPp jshon >/dev/null 2>&1 || die "\`jshon\` isn't installed!" $err_prog_not_installed
+
+# sanity checks
 if ! git rev-parse --git-dir >/dev/null 2>&1;then
     die "Not a git repository" $err_not_git_dir
 fi
