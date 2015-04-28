@@ -116,22 +116,66 @@ gerrit() {
     dossh gerrit "$@"
 }
 
-list_patches() {
-    debug "$me: getting all patches matching \"project:${gerrit_project} status:${1:-open}\""
-    local json=$(gerrit query --format=JSON "project:${gerrit_project}" "status:${1:-open}")
-    local parsed=$(echo "$json" | while read line;do
-        echo "$line" | jshon -Q -e number -up -e branch -up -e id -up -e subject -u
-    done | grep -v '^$' | paste -s -d '   \n')
+query_patches() {
+    if [[ "$#" -lt 1 ]];then
+        query="project:${gerrit_project} status:open"
+    else
+        query="$@"
+    fi
+    debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
+    local json=$(gerrit query --format=JSON "${query}")
 
-    echo "${parsed[@]}" | while read line; do
-        number=$(echo "$line" | cut -d' ' -f1)
-        branch=$(echo "$line" | cut -d' ' -f2)
-        change=$(echo "$line" | cut -d' ' -f3)
-        subject=$(echo "$line" | cut -d' ' -f4-)
-        printf "%s\t%s\t%s\n" "${number}" "${gerrit_project}:${branch}" "${subject}"
-    done | sort -n
+    # let me explain this a little bit:
+    # first, we take the json, read it line by line, since gerrit sends a
+    # single line of json per change matching the query.
+    # then, we use jshon to read the line's number, branch, id, name set
+    # inside of the owner object, and then the top level subject of the change.
+    # after that's done, we use paste to correctly sequence the lines so
+    # that we can just parse it easily with cut.
+    #
+    # also, jshon doesn't seem to properly decode unicode things! but, it
+    # does leave us a u#### string. so, we can try and assume it's a unicode
+    # symbol which we need to decode... which is really hacky and needs to
+    # be fixed in jshon, probably.
+    local parsed=$(
+        echo "$json" | \
+            while read line;do
+                echo "$line" | \
+                    jshon -Q    -e number -up           \
+                                -e branch -up           \
+                                -e id     -up           \
+                                -e owner -e name -upp   \
+                                -e subject -u
+            done | grep -v '^$' | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g' |
+        paste -s -d '||||\n'
+    )
+    echo -e "${parsed[@]}"
 }
 
+list_patches() {
+    query_patches "$@" | while read line; do
+        number=$(echo "$line" | cut -d'|' -f1)
+        branch=$(echo "$line" | cut -d'|' -f2)
+        change=$(echo "$line" | cut -d'|' -f3)
+        author=$(echo "$line" | cut -d'|' -f4)
+        subject=$(echo "$line" | cut -d'|' -f5-)
+        printf "%s\t%s\t%s\t%s\n" "${number}" "${gerrit_project}:${branch}" "${subject}" "${author}"
+    done | sort -n | column -t -s $'\t'
+}
+
+get_patches() {
+    if [[ "$#" -lt 1 ]];then
+        stderr "usage: $name get <patches>"
+        die $err_args
+    fi
+
+    for patch in $@;do
+        number="$1"
+        debug "$me: downloading patch #${number}"
+        query_patches "project:${gerrit_project}" | cut -d'|' -f1
+        #git pull $(debug && echo -v) gerrit re
+    done
+}
 # vars, shopts, etc
 export LC_ALL=C # ensure program outputs are predicatble
 me="git-gerrit"
