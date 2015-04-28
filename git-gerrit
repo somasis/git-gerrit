@@ -14,11 +14,11 @@ stderr() { # stderr <msg>
 
 debug() { # debug [msg]
     if [[ -z "$debug" ]];then
-        return 0 # debug not set
+        return 1 # debug not set
     elif [[ ! -z "$debug" && "$#" -gt 0 ]];then
         stderr "$@"
     else
-        return 1
+        return 0
     fi
 }
 
