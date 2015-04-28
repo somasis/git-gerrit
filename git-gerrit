@@ -179,6 +179,7 @@ get_patches() {
 # vars, shopts, etc
 export LC_ALL=C # ensure program outputs are predicatble
 me="git-gerrit"
+name=${me/-/ }
 
 # error codes - don't set any of these 0 or 1, dummy
 err_not_git_dir=2
@@ -186,6 +187,7 @@ err_bare_repo=3
 err_no_gitreview=4
 err_no_username=5
 err_ssh_failed=6
+err_args=7
 
 if ! git rev-parse --git-dir >/dev/null 2>&1;then
     die "Not a git repository" $err_not_git_dir
@@ -218,6 +220,10 @@ case "$1" in
     ls)
         #debug "$me: Listing patches for ${gerrit_project}..."
         shift
-        list_patches "$@"
+        list_patches "${@:-project:${gerrit_project} status:open}"
+    ;;
+    get)
+        shift
+        get_patches "$@"
     ;;
 esac
