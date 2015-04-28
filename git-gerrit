@@ -125,6 +125,12 @@ query_patches() {
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
     local json=$(gerrit query --format=JSON "${query}")
 
+    # gerrit always provides more than one line of output, unless there
+    # were no query results. so, 1 line = no results
+    if [[ $(echo "${json}" | wc -l) -eq 1 ]];then
+        die "No results for query \"${query}\"" $err_no_results
+    fi
+
     # let me explain this a little bit:
     # first, we take the json, read it line by line, since gerrit sends a
     # single line of json per change matching the query.
@@ -188,6 +194,7 @@ err_no_gitreview=4
 err_no_username=5
 err_ssh_failed=6
 err_args=7
+err_no_results=10
 
 if ! git rev-parse --git-dir >/dev/null 2>&1;then
     die "Not a git repository" $err_not_git_dir
