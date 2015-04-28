@@ -106,6 +106,27 @@ parse_config() {
     fi
 }
 
+# gerrit operations
+gerrit() {
+    dossh gerrit "$@"
+}
+
+list_patches() {
+    debug "$me: getting all patches matching \"project:${gerrit_project} status:${1:-open}\""
+    local json=$(gerrit query --format=JSON "project:${gerrit_project}" "status:${1:-open}")
+    local parsed=$(echo "$json" | while read line;do
+        echo "$line" | jshon -Q -e number -up -e branch -up -e id -up -e subject -u
+    done | grep -v '^$' | paste -s -d '   \n')
+
+    echo "${parsed[@]}" | while read line; do
+        number=$(echo "$line" | cut -d' ' -f1)
+        branch=$(echo "$line" | cut -d' ' -f2)
+        change=$(echo "$line" | cut -d' ' -f3)
+        subject=$(echo "$line" | cut -d' ' -f4-)
+        printf "%s\t%s\t%s\n" "${number}" "${gerrit_project}:${branch}" "${subject}"
+    done | sort -n
+}
+
 # vars, shopts, etc
 export LC_ALL=C # ensure program outputs are predicatble
 me="git-gerrit"
@@ -136,11 +157,18 @@ export work_dir=$(realpath $(git rev-parse --show-toplevel))
 
 parse_config
 
-stderr "git gitdir: $git_dir"
-stderr "git workdir: $work_dir"
-stderr "gitreview: $gitreview"
-stderr "gerrit username: $gerrit_username"
-stderr "gerrit host: $gerrit_host"
-stderr "gerrit project: $gerrit_project"
-stderr "gerrit url: $gerrit_url"
+#stderr "git gitdir: $git_dir"
+#stderr "git workdir: $work_dir"
+#stderr "gitreview: $gitreview"
+#stderr "gerrit username: $gerrit_username"
+#stderr "gerrit host: $gerrit_host"
+#stderr "gerrit project: $gerrit_project"
+#stderr "gerrit url: $gerrit_url"
 
+case "$1" in
+    ls)
+        #debug "$me: Listing patches for ${gerrit_project}..."
+        shift
+        list_patches "$@"
+    ;;
+esac
