@@ -111,6 +111,10 @@ parse_config() {
     fi
 }
 
+page() {
+    ${GIT_PAGER:-${PAGER:-cat}}
+}
+
 # gerrit operations
 gerrit() {
     dossh gerrit "$@"
