@@ -169,7 +169,7 @@ list_patches() {
         owner=$(echo "$line" | cut -d'|' -f5)
         subject=$(echo "$line" | cut -d'|' -f6-)
         printf "%s\t%s\t%s\t%s\n" "${number}" "${project}:${branch}" "${subject}" "${owner}"
-    done | sort -n #| column -t -s $'\t'
+    done | sort -n | column -t -s $'\t'
 }
 
 get_patches() {
@@ -192,7 +192,6 @@ get_patches() {
 }
 
 # vars, shopts, etc
-export LC_ALL=C # ensure program outputs are predicatble
 me="git-gerrit"
 name=${me/-/ }
 
