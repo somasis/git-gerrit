@@ -76,8 +76,8 @@ nonfatal() {
 }
 
 dossh() {
-    debug "$me: executing \`ssh -o ConnectTimeout=30 -x -p \"${gerrit_port}\" \"${gerrit_username}@${gerrit_host}\" \"$@\"\`"
-    ssh -o ConnectTimeout=30 -x -p "${gerrit_port}" "${gerrit_username}@${gerrit_host}" "$@" || { [[ "$nonfatal" ]] || die "dossh failed" 6; }
+    debug "$me: executing \`ssh -o ConnectTimeout=30 -p \"${gerrit_port}\" \"${gerrit_username}@${gerrit_host}\" \"$@\"\`"
+    ssh -o ConnectTimeout=30 -p "${gerrit_port}" "${gerrit_username}@${gerrit_host}" "$@"; return $?
 }
 
 parse_config() {
