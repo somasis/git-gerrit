@@ -26,7 +26,7 @@ die() { # die <err msg> <err code> or die <err code>
     if [[ "$#" -gt 1 ]];then
         local err_msg="$1"
         local err_code="$2"
-        stderr "$me: $err_msg (error code: $err_code)"
+        stderr "$me: $err_msg; dying"
         exit "$err_code"
     else
         local err_code="$1"
