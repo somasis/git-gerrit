@@ -123,7 +123,7 @@ gerrit() {
 query_patches() {
     local query="$@"
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
-    local json=$(gerrit query --format=JSON "${query}")
+    local json=$(gerrit query --format=JSON "${query}" | tr -d '\t')
 
     # gerrit always provides more than one line of output, unless there
     # were no query results. so, 1 line = no results
@@ -153,9 +153,9 @@ query_patches() {
                                 -e branch -up           \
                                 -e id     -up           \
                                 -e owner -e name -upp   \
-                                -e subject -u
-            done | grep -v '^$' | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g' |
-        paste -s -d '|||||\n'
+                                -e subject -u           |
+                    paste -s -d '|||||\n' | grep -v '^$'
+            done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
     echo -e "${parsed[@]}"
 }
