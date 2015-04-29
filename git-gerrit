@@ -121,11 +121,7 @@ gerrit() {
 }
 
 query_patches() {
-    if [[ "$#" -lt 1 ]];then
-        query="project:${gerrit_project} status:open"
-    else
-        query="$@"
-    fi
+    local query="$@"
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
     local json=$(gerrit query --format=JSON "${query}")
 
@@ -147,17 +143,19 @@ query_patches() {
     # does leave us a u#### string. so, we can try and assume it's a unicode
     # symbol which we need to decode... which is really hacky and needs to
     # be fixed in jshon, probably.
+    # num|project|branch|changeid|ownername|subject
     local parsed=$(
         echo "$json" | \
             while read line;do
                 echo "$line" | \
                     jshon -Q    -e number -up           \
+                                -e project -up          \
                                 -e branch -up           \
                                 -e id     -up           \
                                 -e owner -e name -upp   \
                                 -e subject -u
             done | grep -v '^$' | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g' |
-        paste -s -d '||||\n'
+        paste -s -d '|||||\n'
     )
     echo -e "${parsed[@]}"
 }
@@ -165,12 +163,13 @@ query_patches() {
 list_patches() {
     query_patches "$@" | while read line; do
         number=$(echo "$line" | cut -d'|' -f1)
-        branch=$(echo "$line" | cut -d'|' -f2)
-        change=$(echo "$line" | cut -d'|' -f3)
-        author=$(echo "$line" | cut -d'|' -f4)
-        subject=$(echo "$line" | cut -d'|' -f5-)
-        printf "%s\t%s\t%s\t%s\n" "${number}" "${gerrit_project}:${branch}" "${subject}" "${author}"
-    done | sort -n | column -t -s $'\t'
+        project=$(echo "$line" | cut -d'|' -f2)
+        branch=$(echo "$line" | cut -d'|' -f3)
+        change=$(echo "$line" | cut -d'|' -f4)
+        owner=$(echo "$line" | cut -d'|' -f5)
+        subject=$(echo "$line" | cut -d'|' -f6-)
+        printf "%s\t%s\t%s\t%s\n" "${number}" "${project}:${branch}" "${subject}" "${owner}"
+    done | sort -n #| column -t -s $'\t'
 }
 
 get_patches() {
@@ -179,10 +178,15 @@ get_patches() {
         die $err_args
     fi
 
+    local patches=( $(query_patches "project:${gerrit_project}" | cut -d'|' -f1) )
+    echo "${patches[@]}"
     for patch in $@;do
-        number="$1"
-        debug "$me: downloading patch #${number}"
-        query_patches "project:${gerrit_project}" | cut -d'|' -f1
+        debug "$me: downloading patch #${patch}"
+        if echo "${patches[@]}" | tr ' ' '\n' | grep -q "${patch}";then
+            die "patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
+        else
+            debug "$me: patch #${patch} exists on Gerrit"
+        fi
         #git pull $(debug && echo -v) gerrit re
     done
 }
@@ -199,6 +203,7 @@ err_no_gitreview=4
 err_no_username=5
 err_ssh_failed=6
 err_args=7
+err_patch_nonexistent=8
 err_no_results=10
 err_prog_not_installed=70
 
@@ -238,10 +243,20 @@ case "$1" in
     ls)
         #debug "$me: Listing patches for ${gerrit_project}..."
         shift
-        list_patches "${@:-project:${gerrit_project} status:open}"
+        list_patches "project:${gerrit_project} ${@:-status:open}" | page
+    ;;
+    query)
+        shift
+        if [[ -z "$@" ]];then
+            die "A query is required" $err_args
+        fi
+        list_patches "$@" | page
     ;;
     get)
         shift
         get_patches "$@"
+    ;;
+    "")
+        help
     ;;
 esac
