@@ -169,7 +169,7 @@ list_patches() {
         owner=$(echo "$line" | cut -d'|' -f5)
         subject=$(echo "$line" | cut -d'|' -f6-)
         printf "%s\t%s\t%s\t%s\n" "${number}" "${project}:${branch}" "${subject}" "${owner}"
-    done | sort -n | column -t -s $'\t'
+    done | sort -n | column -t -s $'\t' -o $'\t'
 }
 
 get_patches() {
