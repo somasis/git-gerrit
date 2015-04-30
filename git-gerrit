@@ -172,14 +172,40 @@ query_patches() {
 
 list_patches() {
     query_patches "$@" | while read line; do
-        number=$(echo "$line" | cut -d'|' -f1)
-        project=$(echo "$line" | cut -d'|' -f2)
-        branch=$(echo "$line" | cut -d'|' -f3)
-        change=$(echo "$line" | cut -d'|' -f4)
-        owner=$(echo "$line" | cut -d'|' -f5)
-        subject=$(echo "$line" | cut -d'|' -f6-)
-        printf "%s\t%s\t%s\t%s\n" "${number}" "${project}:${branch}" "${subject}" "${owner}"
+        number=$(   echo "$line" | cut -d'|' -f1)
+        project=$(  echo "$line" | cut -d'|' -f2)
+        branch=$(   echo "$line" | cut -d'|' -f3)
+        change=$(   echo "$line" | cut -d'|' -f4)
+        owner=$(    echo "$line" | cut -d'|' -f5)
+        subject=$(  echo "$line" | cut -d'|' -f6-)
+        echo -e "${number}\t${project}:${branch}\t${subject}\t${owner}"
     done | sort -n | column -t -s $'\t' -o $'\t'
+}
+
+review() {
+    local change
+    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+    local branch=${1:-${current_branch}}
+    debug "$me: Making sure you have the Change-Id on all your commits..."
+    local commit_msgs=$(for commit in $(git rev-list origin/${branch}..${current_branch});do git show -s --format=%B "$commit";done)
+    if ! echo "$commit_msgs" | grep -q '^Change-Id: ';then
+        debug "$me: Amending commits with the Change-Id hook"
+        while [[ -f "${git_dir}/rebase-merge/git-rebase-todo" ]];do
+            OLD_EDITOR="${EDITOR}"
+            git stash >/dev/null 2>&1
+            export EDITOR="sed -i \"s/^pick ${change}/edit ${change}/\""
+            git rebase -i "${change}"^ >/dev/null 2>&1
+            export EDITOR=cat
+            git commit --amend >/dev/null 2>&1
+            git rebase --continue >/dev/null 2>&1
+            git stash pop >/dev/null 2>&1
+            export EDITOR="${OLD_EDITOR}"
+        done
+    fi
+
+    [[ ! -z "$2" ]] && local topic="%topic=${2}"
+    local push="HEAD:refs/for/${branch}${topic}"
+    debug "git push gerrit "${push}""
 }
 
 get_patches() {
@@ -192,7 +218,7 @@ get_patches() {
     echo "${patches[@]}"
     for patch in $@;do
         debug "$me: downloading patch #${patch}"
-        if echo "${patches[@]}" | tr ' ' '\n' | grep -q "${patch}";then
+        if echo -n "${patches[@]}" | tr ' ' '\n' | grep -q "${patch}";then
             die "patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
         else
             debug "$me: patch #${patch} exists on Gerrit"
@@ -211,8 +237,9 @@ err_bare_repo=3
 err_no_gitreview=4
 err_no_username=5
 err_ssh_failed=6
-err_args=7
-err_patch_nonexistent=8
+err_scp_failed=7
+err_args=8
+err_patch_nonexistent=9
 err_no_results=10
 err_prog_not_installed=70
 
@@ -260,6 +287,10 @@ case "$1" in
             die "A query is required" $err_args
         fi
         list_patches "$@" | page
+    ;;
+    review)
+        shift
+        review "$@"
     ;;
     get)
         shift
