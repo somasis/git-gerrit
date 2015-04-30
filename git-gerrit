@@ -117,7 +117,12 @@ parse_config() {
 }
 
 page() {
-    ${GIT_PAGER:-${PAGER:-cat}}
+    local stdin=$(</dev/stdin)
+    if [[ ! -z "$stdin" && -z "$@" ]];then
+        echo -n "$stdin" | ${GIT_PAGER:-${PAGER:-cat}}
+    elif [[ ! -z "$@" ]];then
+        ${GIT_PAGER:-${PAGER:-cat}} "$@"
+    fi
 }
 
 # gerrit operations
