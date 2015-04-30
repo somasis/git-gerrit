@@ -27,11 +27,10 @@ die() { # die <err msg> <err code> or die <err code>
         local err_msg="$1"
         local err_code="$2"
         stderr "$me: $err_msg; dying"
-        exit "$err_code"
     else
         local err_code="$1"
-        exit "$err_code"
     fi
+    exit $err_code
 }
 
 in_git_dir() {
