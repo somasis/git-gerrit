@@ -185,27 +185,37 @@ list_patches() {
 review() {
     local change
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
-    local branch=${1:-${current_branch}}
-    debug "$me: Making sure you have the Change-Id on all your commits..."
-    local commit_msgs=$(for commit in $(git rev-list origin/${branch}..${current_branch});do git show -s --format=%B "$commit";done)
-    if ! echo "$commit_msgs" | grep -q '^Change-Id: ';then
-        debug "$me: Amending commits with the Change-Id hook"
-        while [[ -f "${git_dir}/rebase-merge/git-rebase-todo" ]];do
+    local branch=${current_branch}
+    local topic
+    for arg in "$@";do
+        case "$arg" in
+            "branch:"*)
+                local branch=${arg#branch:}
+            ;;
+            "topic:"*)
+                local topic="%topic=${arg#topic:}"
+            ;;
+            *)
+                # default is topic
+                local topic="%topic=${arg}"
+            ;;
+        esac
+    done
+    debug "$me: Making sure you have the Change-Id on commits for Gerrit..."
+    for change in $(git rev-list origin/${branch}..${current_branch});do
+        if [[ -z $(git show -s --format=%B "${change}" | grep '^Change-Id: ') ]];then
+            change=${change:0:7} # rebase uses short hashes
+            debug "$me: Amending ${change} with Change-Id hook"
             OLD_EDITOR="${EDITOR}"
             git stash >/dev/null 2>&1
-            export EDITOR="sed -i \"s/^pick ${change}/edit ${change}/\""
-            git rebase -i "${change}"^ >/dev/null 2>&1
-            export EDITOR=cat
-            git commit --amend >/dev/null 2>&1
-            git rebase --continue >/dev/null 2>&1
+            export EDITOR="sed -i \"s/^pick ${change} /reword ${change} /\""
+            git rebase -i "${change}"^
             git stash pop >/dev/null 2>&1
             export EDITOR="${OLD_EDITOR}"
-        done
-    fi
-
-    [[ ! -z "$2" ]] && local topic="%topic=${2}"
+        fi
+    done
     local push="HEAD:refs/for/${branch}${topic}"
-    debug "git push gerrit "${push}""
+    git push gerrit "${push}"
 }
 
 get_patches() {
