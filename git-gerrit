@@ -187,8 +187,12 @@ review() {
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
     local branch=${current_branch}
     local topic
+    local type=review
     for arg in "$@";do
         case "$arg" in
+            "type:"*)
+                local type=${arg#type:}
+            ;;
             "branch:"*)
                 local branch=${arg#branch:}
             ;;
@@ -214,7 +218,17 @@ review() {
             export EDITOR="${OLD_EDITOR}"
         fi
     done
-    local push="HEAD:refs/for/${branch}${topic}"
+    case "$type" in
+        review)
+            local push="HEAD:refs/for/${branch}${topic}"
+        ;;
+        draft)
+            local push="HEAD:refs/drafts/${branch}${topic}"
+        ;;
+        *)
+            die "Invalid review type: ${type}" $err_invalid_review
+        ;;
+    esac
     git push gerrit "${push}"
 }
 
@@ -251,6 +265,7 @@ err_scp_failed=7
 err_args=8
 err_patch_nonexistent=9
 err_no_results=10
+err_invalid_review=11
 err_prog_not_installed=70
 
 # make sure that the programs we need are there
