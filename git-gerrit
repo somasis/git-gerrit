@@ -133,11 +133,11 @@ gerrit() {
 query_patches() {
     local query="$@"
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
-    local json=$(gerrit query --format=JSON "${query}" | tr -d '\t')
 
-    # gerrit always provides more than one line of output, unless there
-    # were no query results. so, 1 line = no results
-    if [[ $(echo "${json}" | wc -l) -eq 1 ]];then
+    # did you know i despise json
+    local json=$(gerrit query --format=JSON "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g" | grep -v "^{.type.:")
+
+    if [[ $(echo "${json}" | wc -l) -eq 0 ]];then
         die "No results for query \"${query}\"" $err_no_results
     fi
 
@@ -148,17 +148,12 @@ query_patches() {
     # inside of the owner object, and then the top level subject of the change.
     # after that's done, we use paste to correctly sequence the lines so
     # that we can just parse it easily with cut.
-    #
-    # also, jshon doesn't seem to properly decode unicode things! but, it
-    # does leave us a u#### string. so, we can try and assume it's a unicode
-    # symbol which we need to decode... which is really hacky and needs to
-    # be fixed in jshon, probably.
     # num|project|branch|changeid|ownername|subject|topic
     local parsed=$(
-        echo "$json" | \
+        printf '%s\n' "$json" | \
             while read line;do
-                echo "$line" | \
-                    jshon -Q    -e number -up           \
+                printf '%s' "$line" | \
+                    jshon  -Q   -e number -up           \
                                 -e project -up          \
                                 -e branch -up           \
                                 -e id     -up           \
