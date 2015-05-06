@@ -1,10 +1,49 @@
 #!/bin/bash
-# git-gerrit - download, use, and review gerrit patches
+# git-gerrit - list, download, and review gerrit patches - version 0.1
+# usage: git gerrit [action]
+# Interact with a Gerrit server via SSH; list, pull, and create patches.
 #
-# compatible with git-review configuration files
+# Reads git-review-style configuration files from the top directory of
+# the current git repository.
 #
-# Copyright 2015 Kylie McClain <somasissounds@gmail.com>
-# Distributed under the terms of the ISC license
+# If no action is given, commits will be pushed for review.
+#
+# Actions:
+#      get|pull <patches>
+#           Download and apply patches from Gerrit.
+#
+#      list|ls [query]
+#           List reviews matching <query> on the current project.
+#           If no query is given, "status:open" is default query.
+#
+#      review|push [branch:<project branch>] [topic:<patch topic>]
+#                  [type:<review|draft>]
+#           Send all local commits to Gerrit for review.
+#
+#      query <query>
+#           Run a raw query on Gerrit and show the results.
+#
+#      help
+#           Show this help message.
+#
+#      version
+#           Print current version and copyright.
+#
+# End of help.
+# Copyright (c) 2015, Kylie McClain <somasissounds@gmail.com>
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+# End of copyright.
 
 # initialization
 # functions
@@ -31,6 +70,37 @@ die() { # die <err msg> <err code> or die <err code>
         local err_code="$1"
     fi
     exit $err_code
+}
+
+help() {
+    sed -n '/^#/!d;s/^# //;s/^#//;3,${p;}' "$0" | \
+        while IFS= read help_line;do
+            if [[ "$help_line" == "End of help." ]];then
+                exit 0
+            else
+                printf "%s\n" "$help_line"
+            fi
+        done
+    exit 0
+}
+
+version() {
+    sed 's/^# //;s/.* - version/'"${0##*/}"'/;2q;$!d' "$0"
+    copyright
+    exit 0
+}
+
+copyright() {
+    sed -n '/^#/!d;s/^# //;s/^#//;/End of help./,${p;}' "$0" | \
+    while IFS= read copyright_line;do
+        if [[ "$copyright_line" == "End of help." ]];then
+            true
+        elif [[ "$copyright_line" == "End of copyright." ]];then
+            break
+        else
+            printf "%s\n" "$copyright_line"
+        fi
+    done
 }
 
 in_git_dir() {
@@ -271,6 +341,11 @@ err_prog_not_installed=70
 type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
 type -fPp jshon >/dev/null 2>&1 || die "\`jshon\` isn't installed!" $err_prog_not_installed
 
+# special case
+if [[ "$1" == "help" || "$1" == "version" ]];then
+    $1
+fi
+
 # sanity checks
 if ! git rev-parse --git-dir >/dev/null 2>&1;then
     die "Not a git repository" $err_not_git_dir
@@ -319,8 +394,5 @@ case "$1" in
     get)
         shift
         get_patches "$@"
-    ;;
-    "")
-        help
     ;;
 esac
