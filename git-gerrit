@@ -387,7 +387,7 @@ case "$1" in
         fi
         list_patches "$@" | page
     ;;
-    review)
+    review|"")
         shift
         review "$@"
     ;;
