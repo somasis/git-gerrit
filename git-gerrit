@@ -308,6 +308,33 @@ review() {
     git push gerrit "${push}"
 }
 
+info_patches() {
+    for patch in $@;do
+        debug "$me: Getting info about #${patch}..."
+        query_patches "${patch}" | while read line;do
+            number=$(echo "$line" | cut -d$'\t' -f1)
+            project=$(echo "$line" | cut -d$'\t' -f2)
+            branch=$(echo "$line" | cut -d$'\t' -f3)
+            change=$(echo "$line" | cut -d$'\t' -f4)
+            url=$(echo "$line" | cut -d$'\t' -f5)
+            status=$(echo "$line" | cut -d$'\t' -f6 | sed 's/.*/\L&/;s/[a-z]*/\u&/g')
+            owner=$(echo "$line" | cut -d$'\t' -f7)" <"$(echo "$line" | cut -d$'\t' -f8)">"
+            subject=$(echo "$line" | cut -d$'\t' -f9)
+            topic=$(echo "$line" | cut -d$'\t' -f10)
+            echo -e "Change #${patch} for ${project}/${branch}:"
+            echo -e "\tSubject:\t${subject}"
+            [[ "$topic" ]] && echo -e "\tTopic:\t\t${topic}"
+            echo -e "\tOwner:\t\t${owner}"
+            echo
+            echo -e "\tStatus:\t\t${status}"
+            echo
+            echo -e "\tChange-Id:\t${change}"
+            echo -e "\tURL:\t\t${url}"
+            echo
+        done
+    done
+}
+
 get_patches() {
     if [[ "$#" -lt 1 ]];then
         stderr "usage: $name get <patches>"
