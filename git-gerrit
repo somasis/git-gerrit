@@ -232,11 +232,13 @@ query_patches() {
                                 -e project -up          \
                                 -e branch -up           \
                                 -e id     -up           \
+                                -e url    -up           \
+                                -e status -up           \
                                 -e owner -e name -up    \
                                          -e email -upp  \
                                 -e subject -up          \
                                 -e topic -u             |
-                    tr -d $'\t' | paste -s -d $'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\n' | grep -v '^$'
+                    tr -d $'\t' | paste -s -d $'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\n' | grep -v '^$'
             done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
     echo -e "${parsed[@]}"
@@ -248,9 +250,9 @@ list_patches() {
         project=$(echo "$line" | cut -d$'\t' -f2)
         branch=$(echo "$line" | cut -d$'\t' -f3)
         change=$(echo "$line" | cut -d$'\t' -f4)
-        owner=$(echo "$line" | cut -d$'\t' -f5)" <"$(echo "$line" | cut -d$'\t' -f6)">"
-        subject=$(echo "$line" | cut -d$'\t' -f7)
-        topic=$(echo "$line" | cut -d$'\t' -f8)
+        owner=$(echo "$line" | cut -d$'\t' -f6)" <"$(echo "$line" | cut -d$'\t' -f7)">"
+        subject=$(echo "$line" | cut -d$'\t' -f8)
+        topic=$(echo "$line" | cut -d$'\t' -f9)
         [[ "$topic" ]] && topic=":$topic"
         echo -e "${number}\t${project}/${branch}${topic}\t${subject}\t${owner}"
     done | sort -n | column -t -s $'\t' -o $'\t'
