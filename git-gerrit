@@ -9,6 +9,10 @@
 # If no action is given, commits will be pushed for review.
 #
 # Actions:
+#      review|push [branch:<project branch>] [topic:<patch topic>]
+#                  [type:<review|draft>]
+#           Send all local commits to Gerrit for review.
+#
 #      get|pull <patches>
 #           Download and apply patches from Gerrit.
 #
@@ -16,9 +20,11 @@
 #           List reviews matching <query> on the current project.
 #           If no query is given, "status:open" is default query.
 #
-#      review|push [branch:<project branch>] [topic:<patch topic>]
-#                  [type:<review|draft>]
-#           Send all local commits to Gerrit for review.
+#      -2|-1|+1|+2 <patches>
+#           Give each patch a code review.
+#
+#      browse <patches>
+#           Open the URL to each patch with $BROWSER.
 #
 #      query <query>
 #           Run a raw query on Gerrit and show the results.
@@ -204,7 +210,6 @@ query_patches() {
     local query="$@"
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
 
-    # did you know i despise json
     local json=$(gerrit query --format=JSON "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g" | grep -v "^{.type.:")
 
     if [[ -z "${json}" ]];then
@@ -218,7 +223,7 @@ query_patches() {
     # inside of the owner object, and then the top level subject of the change.
     # after that's done, we use paste to correctly sequence the lines so
     # that we can just parse it easily with cut.
-    # num|project|branch|changeid|ownername|subject|topic
+    # num|project|branch|changeid|url|status|ownername|email|subject|topic
     local parsed=$(
         printf '%s\n' "$json" | \
             while read line;do
@@ -375,7 +380,7 @@ parse_config
 #stderr "gerrit url: $gerrit_url"
 
 case "$1" in
-    ls)
+    ls|list)
         #debug "$me: Listing patches for ${gerrit_project}..."
         shift
         list_patches "project:${gerrit_project} ${@:-status:open}" | page
@@ -387,12 +392,22 @@ case "$1" in
         fi
         list_patches "$@" | page
     ;;
-    review|"")
+    info)
         shift
-        review "$@"
+        if [[ -z "$@" ]];then
+            die "A patch is required" $err_args
+        fi
+        info_patches "$@" | page
     ;;
-    get)
+    get|pull)
         shift
         get_patches "$@"
     ;;
+    ""|review|push)
+        shift
+        review "$@"
+    ;;
+#    url)
+        #shift
+
 esac
