@@ -207,7 +207,7 @@ query_patches() {
     # did you know i despise json
     local json=$(gerrit query --format=JSON "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g" | grep -v "^{.type.:")
 
-    if [[ $(echo "${json}" | wc -l) -eq 0 ]];then
+    if [[ -z "${json}" ]];then
         die "No results for query \"${query}\"" $err_no_results
     fi
 
