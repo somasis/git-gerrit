@@ -212,10 +212,9 @@ query_patches() {
     local query="$@"
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
 
-    local json=$(gerrit query --format=JSON --all-approvals --current-patch-set "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g" | grep -v "^{.type.:")
-    #echo "$json" >&2
+    local json=$(gerrit query --format=JSON --all-approvals --current-patch-set "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g")
 
-    if [[ -z "${json}" ]];then
+    if [[ $(echo "${json}" | wc -l) -eq 1 ]];then
         die "No results for query \"${query}\"" $err_no_results
     fi
 
