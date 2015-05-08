@@ -350,8 +350,6 @@ get_patches() {
         die $err_args
     fi
 
-    local patches=( $(query_patches "project:${gerrit_project}" | cut -d'|' -f1) )
-    echo "${patches[@]}"
     for patch in $@;do
         debug "$me: downloading patch #${patch}"
         if echo -n "${patches[@]}" | tr ' ' '\n' | grep -q "${patch}";then
@@ -361,6 +359,22 @@ get_patches() {
         fi
         #git pull $(debug && echo -v) gerrit re
     done
+}
+
+patch_exists() { # takes input from stdin, expects query_patches output, exits 1 if non-existent
+    if [[ "$1" == 'stdin' ]];then
+        local input="$(</dev/stdin)"
+        shift
+    else
+        local input=$(query_patches "${1}")
+    fi
+    if echo "$input" | cut -d$'\t' -f1 | grep -q "^${patch}$";then
+        debug "$me: Patch #${patch} exists on the Gerrit instance"
+        return 0
+    else
+        debug "$me: Patch #${patch} does not exist on the Gerrit instance"
+        return 1
+    fi
 }
 
 # vars, shopts, etc
