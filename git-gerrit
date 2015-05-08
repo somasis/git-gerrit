@@ -209,7 +209,8 @@ query_patches() {
     local query="$@"
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
 
-    local json=$(gerrit query --format=JSON "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g" | grep -v "^{.type.:")
+    local json=$(gerrit query --format=JSON --all-approvals --current-patch-set "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g" | grep -v "^{.type.:")
+    #echo "$json" >&2
 
     if [[ -z "${json}" ]];then
         die "No results for query \"${query}\"" $err_no_results
@@ -222,21 +223,27 @@ query_patches() {
     # inside of the owner object, and then the top level subject of the change.
     # after that's done, we use paste to correctly sequence the lines so
     # that we can just parse it easily with cut.
-    # num|project|branch|changeid|url|status|ownername|email|subject|topic
+    # changenum|patchset|project|branch|changeid|status|url|ref|subject|owner|email|topic
     local parsed=$(
         printf '%s\n' "$json" | \
             while read line;do
                 printf '%s' "$line" | \
-                    jshon  -Q   -e number -up           \
-                                -e project -up          \
-                                -e branch -up           \
-                                -e id     -up           \
-                                -e url    -up           \
-                                -e status -up           \
-                                -e owner -e name -up    \
-                                         -e email -upp  \
-                                -e subject -up          \
-                                -e topic -u             |
+                    jshon  -Q   -e number -up               \
+                                -e currentPatchSet          \
+                                        -e number   -upp    \
+                                -e project  -up             \
+                                -e branch   -up             \
+                                -e id       -up             \
+                                -e status   -up             \
+                                -e url      -up             \
+                                -e currentPatchSet          \
+                                        -e ref      -upp    \
+                                -e subject  -up             \
+                                -e currentPatchSet          \
+                                        -e author           \
+                                        -e name -up         \
+                                        -e email -uppp      \
+                                -e topic -u                 |
                     tr -d $'\t' | paste -s -d $'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\n' | grep -v '^$'
             done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
@@ -245,13 +252,12 @@ query_patches() {
 
 list_patches() {
     query_patches "$@" | while read line; do
-        number=$(echo "$line" | cut -d$'\t' -f1)
-        project=$(echo "$line" | cut -d$'\t' -f2)
-        branch=$(echo "$line" | cut -d$'\t' -f3)
-        change=$(echo "$line" | cut -d$'\t' -f4)
-        owner=$(echo "$line" | cut -d$'\t' -f6)" <"$(echo "$line" | cut -d$'\t' -f7)">"
-        subject=$(echo "$line" | cut -d$'\t' -f8)
-        topic=$(echo "$line" | cut -d$'\t' -f9)
+        number=$(echo "$line" | cut -d$'\t' -f1):$(echo "$line" | cut -d$'\t' -f2)
+        project=$(echo "$line" | cut -d$'\t' -f3)
+        branch=$(echo "$line" | cut -d$'\t' -f4)
+        subject=$(echo "$line" | cut -d$'\t' -f9)
+        owner=$(echo "$line" | cut -d$'\t' -f10)" <"$(echo "$line" | cut -d$'\t' -f11)">"
+        topic=$(echo "$line" | cut -d$'\t' -f12)
         [[ "$topic" ]] && topic=":$topic"
         echo -e "${number}\t${project}/${branch}${topic}\t${subject}\t${owner}"
     done | sort -n | column -t -s $'\t' -o $'\t'
@@ -308,27 +314,31 @@ review() {
 }
 
 info_patches() {
+    # changenum|patchset|project|branch|changeid|status|url|ref|subject|owner|email|topic
     for patch in $@;do
         debug "$me: Getting info about #${patch}..."
         query_patches "${patch}" | while read line;do
             number=$(echo "$line" | cut -d$'\t' -f1)
-            project=$(echo "$line" | cut -d$'\t' -f2)
-            branch=$(echo "$line" | cut -d$'\t' -f3)
-            change=$(echo "$line" | cut -d$'\t' -f4)
-            url=$(echo "$line" | cut -d$'\t' -f5)
+            patchset=$(echo "$line" | cut -d$'\t' -f2)
+            project=$(echo "$line" | cut -d$'\t' -f3)
+            branch=$(echo "$line" | cut -d$'\t' -f4)
+            changeid=$(echo "$line" | cut -d$'\t' -f5)
             status=$(echo "$line" | cut -d$'\t' -f6 | sed 's/.*/\L&/;s/[a-z]*/\u&/g')
-            owner=$(echo "$line" | cut -d$'\t' -f7)" <"$(echo "$line" | cut -d$'\t' -f8)">"
+            url=$(echo "$line" | cut -d$'\t' -f7)
+            ref=$(echo "$line" | cut -d$'\t' -f8)
             subject=$(echo "$line" | cut -d$'\t' -f9)
-            topic=$(echo "$line" | cut -d$'\t' -f10)
-            echo -e "Change #${patch} for ${project}/${branch}:"
+            owner=$(echo "$line" | cut -d$'\t' -f10)" <"$(echo "$line" | cut -d$'\t' -f11)">"
+            topic=$(echo "$line" | cut -d$'\t' -f12)
+            echo -e "Change #${patch} for ${project}/${branch}, patchset ${patchset}:"
             echo -e "\tSubject:\t${subject}"
             [[ "$topic" ]] && echo -e "\tTopic:\t\t${topic}"
             echo -e "\tOwner:\t\t${owner}"
             echo
             echo -e "\tStatus:\t\t${status}"
             echo
-            echo -e "\tChange-Id:\t${change}"
+            echo -e "\tChange-Id:\t${changeid}"
             echo -e "\tURL:\t\t${url}"
+            echo -e "\tRef:\t\t${ref}"
             echo
         done
     done
