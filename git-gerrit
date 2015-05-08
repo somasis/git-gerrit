@@ -373,12 +373,15 @@ review_patches() {
     case "$action" in
         -*|0|+*)
             action="--code-review $action"
+            msg="Gave %s a ${action} Code-Review"
         ;;
         submit)
             action="--submit"
+            msg="Submitted %s to the project repository"
         ;;
         retest)
             action="--retest +1"
+            msg="Set %s to Retest+1"
         ;;
     esac
     for patch in $@;do
@@ -387,6 +390,7 @@ review_patches() {
             local query=$(query_patches "${patch}")
             patchset=$(echo "${query[@]}" | cut -d$'\t' -f2)
             gerrit review "${patch},${patchset}" $action || die "Failed to run ${action} ${patch},${patchset}" $err_review_failed
+            info "$me: $(printf ${msg} ${patch})"
         else
             die "Patch #${patch} does not exist" $err_patch_nonexistent
         fi
