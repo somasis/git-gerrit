@@ -263,7 +263,7 @@ list_patches() {
     done | sort -n | column -t -s $'\t' -o $'\t'
 }
 
-review() {
+push_patch() {
     local change
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
     local branch=${current_branch}
@@ -443,7 +443,7 @@ case "$1" in
     ;;
     ""|review|push)
         shift
-        review "$@"
+        push_patch "$@"
     ;;
 #    url)
         #shift
