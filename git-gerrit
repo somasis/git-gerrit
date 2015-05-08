@@ -20,8 +20,11 @@
 #           List reviews matching <query> on the current project.
 #           If no query is given, "status:open" is default query.
 #
-#      -2|-1|+1|+2 <patches>
-#           Give each patch a code review.
+#      -2|-1|0|+1|+2 <patches>
+#           Give each patch a corrisponding code review.
+#
+#      submit|retest <patches>
+#           Submit or Retest+1 each patch.
 #
 #      browse <patches>
 #           Open the URL to each patch with $BROWSER.
@@ -352,12 +355,36 @@ get_patches() {
 
     for patch in $@;do
         debug "$me: downloading patch #${patch}"
-        if echo -n "${patches[@]}" | tr ' ' '\n' | grep -q "${patch}";then
-            die "patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
+        #if patch_exists "${patch}";then
+            #blah blah blah write this stuff
+        #fi
+    done
+}
+
+review_patches() {
+    action="$1"
+    shift
+    case "$action" in
+        -*|0|+*)
+            action="--code-review $action"
+        ;;
+        submit)
+            action="--submit"
+        ;;
+        retest)
+            action="--retest +1"
+        ;;
+    esac
+    for patch in $@;do
+        debug "$me: ${action} #${patch}..."
+        if patch_exists "$patch";then
+            local query=$(query_patches "${patch}")
+            patchset=$(echo "${query[@]}" | cut -d$'\t' -f2)
+            gerrit review "${patch},${patchset}" $action || die "Failed to run ${action} ${patch},${patchset}" $err_review_failed
         else
-            debug "$me: patch #${patch} exists on Gerrit"
+            die "Patch #${patch} does not exist" $err_patch_nonexistent
         fi
-        #git pull $(debug && echo -v) gerrit re
+
     done
 }
 
@@ -392,6 +419,7 @@ err_args=8
 err_patch_nonexistent=9
 err_no_results=10
 err_invalid_review=11
+err_review_failed=12
 err_prog_not_installed=70
 
 # make sure that the programs we need are there
@@ -454,6 +482,14 @@ case "$1" in
     get|pull)
         shift
         get_patches "$@"
+    ;;
+    -2|-1|0|+1|+2|submit|retest)
+        action="$1"
+        shift
+        if [[ -z "$@" ]];then
+            die "A patch is required" $err_args
+        fi
+        review_patches "$action" "$@"
     ;;
     ""|review|push)
         shift
