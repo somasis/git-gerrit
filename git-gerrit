@@ -398,6 +398,21 @@ review_patches() {
     done
 }
 
+open_patch_urls() {
+    if [[ -z "${BROWSER}" ]];then
+        die "You need a browser set as \$BROWSER" $err_no_browser
+    fi
+    for patch in $@;do
+        if patch_exists "$patch";then
+            local url=$(query_patches "${patch}" | cut -d$'\t' -f7)
+            info "$me: Opening \"${url}\" in \`${BROWSER}\`..."
+            ${BROWSER} "$url" & disown
+        else
+            die "Patch ${patch} does not exist on Gerrit" $err_patch_nonexistent
+        fi
+    done
+}
+
 patch_exists() { # takes input from stdin, expects query_patches output, exits 1 if non-existent
     if [[ "$1" == 'stdin' ]];then
         local input="$(</dev/stdin)"
@@ -430,6 +445,7 @@ err_patch_nonexistent=9
 err_no_results=10
 err_invalid_review=11
 err_review_failed=12
+err_no_browser=13
 err_prog_not_installed=70
 
 # make sure that the programs we need are there
@@ -500,6 +516,13 @@ case "$1" in
             die "A patch is required" $err_args
         fi
         review_patches "$action" "$@"
+    ;;
+    browse)
+        shift
+        if [[ -z "$@" ]];then
+            die "A patch is required" $err_args
+        fi
+        open_patch_urls "$@"
     ;;
     ""|review|push)
         shift
