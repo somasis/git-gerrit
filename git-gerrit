@@ -16,15 +16,18 @@
 #      get|pull <patches>
 #           Download and apply patches from Gerrit.
 #
-#      list|ls [query]
-#           List reviews matching <query> on the current project.
-#           If no query is given, "status:open" is default query.
-#
 #      -2|-1|0|+1|+2 <patches>
 #           Give each patch a corrisponding code review.
 #
 #      submit|retest <patches>
 #           Submit or Retest+1 each patch.
+#
+#      list|ls [query]
+#           List reviews matching <query> on the current project.
+#           If no query is given, "status:open" is default query.
+#
+#      info <patches>
+#           Show more in-depth information about each patch given.
 #
 #      browse <patches>
 #           Open the URL to each patch with $BROWSER.
