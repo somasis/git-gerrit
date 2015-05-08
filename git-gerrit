@@ -193,10 +193,9 @@ parse_config() {
 }
 
 page() {
-    local stdin=$(</dev/stdin)
-    if [[ ! -z "$stdin" && -z "$@" ]];then
-        echo "$stdin" | ${GIT_PAGER:-${PAGER:-cat}}
-    elif [[ ! -z "$@" ]];then
+    if [[ -z "$@" ]];then
+        echo "$(</dev/stdin)" | ${GIT_PAGER:-${PAGER:-cat}}
+    else
         ${GIT_PAGER:-${PAGER:-cat}} "$@"
     fi
 }
