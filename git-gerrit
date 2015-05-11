@@ -390,7 +390,7 @@ review_patches() {
             gerrit review "${patch},${patchset}" $action || die "Failed to run ${action} ${patch},${patchset}" $err_review_failed
             info "$me: $(printf ${msg} ${patch})"
         else
-            die "Patch #${patch} does not exist" $err_patch_nonexistent
+            die "$me: Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
         fi
 
     done
@@ -406,7 +406,7 @@ open_patch_urls() {
             info "$me: Opening \"${url}\" in \`${BROWSER}\`..."
             ${BROWSER} "$url" & disown
         else
-            die "Patch ${patch} does not exist on Gerrit" $err_patch_nonexistent
+            die "$me: Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
         fi
     done
 }
