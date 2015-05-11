@@ -400,7 +400,7 @@ review_patches() {
 
 open_patch_urls() {
     if [[ -z "${BROWSER}" ]];then
-        die "You need a browser set as \$BROWSER" $err_no_browser
+        die "$me: You need a browser set as \$BROWSER" $err_no_browser
     fi
     for patch in $@;do
         if patch_exists "$patch";then
