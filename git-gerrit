@@ -12,6 +12,7 @@
 #      review|push [branch:<project branch>] [topic:<patch topic>]
 #                  [type:<review|draft>]
 #           Send all local commits to Gerrit for review.
+#           If no 'type' is given, 'type:review' is assumed.
 #
 #      get|pull <patches>
 #           Download and apply patches from Gerrit.
