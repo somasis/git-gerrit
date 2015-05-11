@@ -222,7 +222,7 @@ query_patches() {
     local json=$(gerrit query --format=JSON --all-approvals --current-patch-set "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g")
 
     if [[ $(echo "${json}" | wc -l) -eq 1 ]];then
-        die "No results for query \"${query}\"" $err_no_results
+        [[ "${nonfatal}" ]] || die "No results for query \"${query}\"" $err_no_results
     fi
 
     # let me explain this a little bit:
@@ -418,7 +418,7 @@ patch_exists() { # takes input from stdin, expects query_patches output, exits 1
         local input="$(</dev/stdin)"
         shift
     else
-        local input=$(query_patches "${1}")
+        local input=$(nonfatal query_patches "${1}")
     fi
     if echo "$input" | cut -d$'\t' -f1 | grep -q "^${patch}$";then
         debug "$me: Patch #${patch} exists on the Gerrit instance"
