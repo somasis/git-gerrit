@@ -355,19 +355,19 @@ info_patches() {
 }
 
 get_patches() { # <patches>"
+    tmp=$(mktemp -t "$me.XXXXXXXX")
     for patch in $@;do
         if patch_exists "${patch}";then
             debug "$me: Downloading patch #${patch}..."
             ref=$(query_patches "${patch}" | tail -1 | cut -d$'\t' -f8)
-            OLD_EDITOR="${EDITOR}"
-            export EDITOR="cat"
-            git pull $(config get remote.gerrit.url) "${ref}"
-            git rebase -i >/dev/null
-            export EDITOR="${EDITOR}"
+            git fetch $(config get remote.gerrit.url) "${ref}"
+            git format-patch -1 --stdout FETCH_HEAD >> "$tmp"
         else
-            die "$me: Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
+            info "$me: Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
         fi
     done
+    git am <"$tmp"
+    rm -f "$tmp"
 }
 
 review_patches() {
