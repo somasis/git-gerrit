@@ -359,7 +359,11 @@ get_patches() { # <patches>"
         if patch_exists "${patch}";then
             debug "$me: Downloading patch #${patch}..."
             ref=$(query_patches "${patch}" | tail -1 | cut -d$'\t' -f8)
-            git pull gerrit "${ref}"
+            OLD_EDITOR="${EDITOR}"
+            export EDITOR="cat"
+            git pull $(config get remote.gerrit.url) "${ref}"
+            git rebase -i >/dev/null
+            export EDITOR="${EDITOR}"
         else
             die "$me: Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
         fi
