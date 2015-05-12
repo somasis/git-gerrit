@@ -163,7 +163,7 @@ nonfatal() {
 
 dossh() {
     debug "$me: executing \`ssh -o ConnectTimeout=30 -p \"${gerrit_port}\" \"${gerrit_username}@${gerrit_host}\" \"$@\"\`"
-    ssh -o ConnectTimeout=30 -p "${gerrit_port}" "${gerrit_username}@${gerrit_host}" "$@" 2>/dev/null; return $?
+    ssh -p "${gerrit_port}" "${gerrit_username}@${gerrit_host}" "$@" 2>/dev/null; return $?
 }
 
 parse_config() {
