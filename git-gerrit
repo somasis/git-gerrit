@@ -169,7 +169,7 @@ dossh() {
 parse_config() {
     gitreview="${work_dir}/.gitreview"
     if [[ ! -f "${gitreview}" ]];then
-        die "No .gitreview config in top of work directory" $err_no_gitreview
+        die "$me: No .gitreview config in top of work directory" $err_no_gitreview
     fi
 
     gerrit_host=$(grep '^host=' "${gitreview}" | cut -d'=' -f2-)
@@ -182,13 +182,13 @@ parse_config() {
     if ! config exist remote.gerrit.url;then
         nonfatal dossh gerrit >/dev/null 2>&1
         if [[ "$?" -eq 0 ]];then
-            debug "Connected to ${gerrit_username}@${gerrit_host}:${gerrit_port} successfully"
+            debug "$me: Connected to ${gerrit_username}@${gerrit_host}:${gerrit_port} successfully"
             gerrit_url="ssh://${gerrit_username}@${gerrit_host}:${gerrit_port}/${gerrit_project}.git"
         else
-            die "SSH connection to ${gerrit_username}@${gerrit_host}:${gerrit_port} failed" $err_ssh_failed
+            die "$me: SSH connection to ${gerrit_username}@${gerrit_host}:${gerrit_port} failed" $err_ssh_failed
         fi
 
-        stderr "Adding a remote named \"gerrit\" pointing to \"$gerrit_url\"..."
+        info "$me: Adding a remote named \"gerrit\" pointing to \"$gerrit_url\"..."
         git remote add gerrit "${gerrit_url}"
     else
         gerrit_url=$(config get remote.gerrit.url | sed "s#/${gerrit_project}.*##;s#.*://##")
@@ -198,7 +198,7 @@ parse_config() {
         debug "$me: getting commit-msg hook for Change-Id lines from \"${gerrit_url}\"..."
         if ! scp -p -P  "${gerrit_port}" "${gerrit_username}@${gerrit_host}":hooks/commit-msg\
                         "${git_dir}/hooks/commit-msg" >/dev/null 2>&1;then
-            die "Failed to \`scp\` the Change-Id hook" $err_scp_failed
+            die "$me: Failed to \`scp\` the Change-Id hook" $err_scp_failed
         fi
     fi
 }
