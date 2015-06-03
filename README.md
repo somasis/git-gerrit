@@ -15,8 +15,7 @@ and querying a Gerrit server via SSH, from the command line.
 **Exherbo users, there is an exheres in ::somasis; dev-scm/git-gerrit.**
 
 1. `git clone https://github.com/Somasis/git-gerrit` or [download a release].
-2. `make`
-3. `make install`
+2. `make install` as root
 
 ## Usage
 After installation, run `man git-gerrit`. If you prefer, you can also just do
