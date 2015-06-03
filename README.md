@@ -4,9 +4,11 @@ An [ISC-licensed](LICENSE) program which allows for reviewing, downloading,
 and querying a Gerrit server via SSH, from the command line.
 
 ## Requirements
+Your distribution likely has most of the requirements packaged already.
+
 - [jshon](https://github.com/keenerd/jshon)
 - [git](http://git-scm.com)
-- ssh
+- [ssh](http://www.openssh.com/)
 - coreutils (tr, paste, cut, wc, etc.)
 - sed
 - grep
