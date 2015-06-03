@@ -22,6 +22,12 @@ and querying a Gerrit server via SSH, from the command line.
 After installation, run `man git-gerrit`. If you prefer, you can also just do
 `git gerrit -h` for a non-manpage help message.
 
+Keep in mind, that since `git-gerrit` does aim to an extent to be a
+replacement for `git-review`, it actually uses `.gitreview` files for
+finding where the repository's Gerrit instance is at. It is currently
+compatible with the host and project parameters of `.gitreview` files, and
+there's not really much reason to change it.
+
 ## Rationale
 Originally, I had been using OpenStack's `git-review` for using Gerrit in a
 more usable interface than plain git. However, it has a few drawbacks:
