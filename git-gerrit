@@ -173,8 +173,8 @@ parse_config() {
     fi
 
     gerrit_host=$(grep '^host=' "${gitreview}" | cut -d'=' -f2-)
+    gerrit_port=$(grep '^port=' "${gitreview}" | cut -d'=' -f2-)
     gerrit_project=$(grep '^project=' "${gitreview}" | cut -d'=' -f2-)
-    gerrit_port=${gerrit_host##*:}
     if [[ -z "$gerrit_port" || "$gerrit_port" == "$gerrit_host" ]];then
         gerrit_port="29418"
     fi
