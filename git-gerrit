@@ -457,8 +457,12 @@ type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_in
 type -fPp jshon >/dev/null 2>&1 || die "\`jshon\` isn't installed!" $err_prog_not_installed
 
 # special case
-if [[ "$1" == "help" || "$1" == "version" ]];then
-    $1
+if [[ "$1" == 'help' ]];then
+    git gerrit --help;exit $?
+elif [[ "$1" == "-h" ]];then
+    help
+elif [[ "$1" == "version" || "$1" == "--version" ]];then
+    version
 fi
 
 # sanity checks
