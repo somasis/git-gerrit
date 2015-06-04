@@ -12,6 +12,7 @@ Your distribution likely has most of the requirements packaged already.
 - coreutils (tr, paste, cut, wc, etc.)
 - sed
 - grep
+- [ronn](https://github.com/rtomayko/ronn), if you want to generate manpages.
 
 ## Installation
 **Exherbo users, there is an exheres in ::somasis; dev-scm/git-gerrit.**
