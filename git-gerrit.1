@@ -182,6 +182,28 @@ Required variable\. This is the name of the repository on Gerrit\.
 .IP
 ex\. \fBproject=baz\fR, which would make \fBgit\-gerrit\fR push and pull patches from \fBssh://gerrit\.foobar\.biz:5000/baz\.git\fR\.
 .
+.SH "CONFIGURATION EXAMPLES"
+.
+.SS "<code>\.gitreview</code>"
+.
+.nf
+
+[gerrit]
+host=gerrit\.foobar\.biz
+port=5000
+project=baz
+.
+.fi
+.
+.SS "<code>\.git/config</code> (snippet)"
+.
+.nf
+
+[gitreview]
+    username = Moo
+.
+.fi
+.
 .SH "DIFFERENCES FROM GIT\-REVIEW(1)"
 Unlike git\-review(1), \fBgit\-gerrit\fR does not prompt when you attempt to send multiple commits to Gerrit, which would create multiple patches\.
 .

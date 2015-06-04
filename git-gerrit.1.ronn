@@ -167,6 +167,18 @@ the moment, other than configuring how it connects to Gerrit.
     ex. `project=baz`, which would make `git-gerrit` push and pull patches
     from **ssh://gerrit.foobar.biz:5000/baz.git**.
 
+## CONFIGURATION EXAMPLES
+
+### `.gitreview`
+    [gerrit]
+    host=gerrit.foobar.biz
+    port=5000
+    project=baz
+
+### `.git/config` (snippet)
+    [gitreview]
+        username = Moo
+
 ## DIFFERENCES FROM GIT-REVIEW(1)
 
 Unlike git-review(1), `git-gerrit` does not prompt when you attempt to

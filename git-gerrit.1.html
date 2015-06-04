@@ -59,6 +59,7 @@
     <a href="#FEATURES">FEATURES</a>
     <a href="#COMMANDS">COMMANDS</a>
     <a href="#CONFIGURATION">CONFIGURATION</a>
+    <a href="#CONFIGURATION-EXAMPLES">CONFIGURATION EXAMPLES</a>
     <a href="#DIFFERENCES-FROM-GIT-REVIEW-1-">DIFFERENCES FROM GIT-REVIEW(1)</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
     <a href="#LICENSE">LICENSE</a>
@@ -224,6 +225,22 @@ the moment, other than configuring how it connects to Gerrit.</p>
 </dl>
 
 
+<h2 id="CONFIGURATION-EXAMPLES">CONFIGURATION EXAMPLES</h2>
+
+<h3 id="-gitreview"><code>.gitreview</code></h3>
+
+<pre><code>[gerrit]
+host=gerrit.foobar.biz
+port=5000
+project=baz
+</code></pre>
+
+<h3 id="-git-config-snippet-"><code>.git/config</code> (snippet)</h3>
+
+<pre><code>[gitreview]
+    username = Moo
+</code></pre>
+
 <h2 id="DIFFERENCES-FROM-GIT-REVIEW-1-">DIFFERENCES FROM GIT-REVIEW(1)</h2>
 
 <p>Unlike <span class="man-ref">git-review<span class="s">(1)</span></span>, <code>git-gerrit</code> does not prompt when you attempt to
@@ -235,7 +252,7 @@ such as your Gerrit username should be set in Git's configuration.</p>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 
-<p>Written by Kylie McClain <a href="&#109;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x73;&#111;&#x6d;&#97;&#x73;&#x69;&#x73;&#64;&#101;&#x78;&#104;&#x65;&#x72;&#98;&#111;&#x2e;&#x6f;&#114;&#103;" data-bare-link="true">&#115;&#x6f;&#109;&#97;&#115;&#105;&#x73;&#x40;&#x65;&#120;&#104;&#101;&#114;&#x62;&#111;&#46;&#111;&#x72;&#103;</a></p>
+<p>Written by Kylie McClain <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#115;&#111;&#109;&#97;&#x73;&#105;&#115;&#x40;&#101;&#120;&#x68;&#x65;&#114;&#98;&#x6f;&#x2e;&#x6f;&#114;&#x67;" data-bare-link="true">&#115;&#111;&#109;&#x61;&#x73;&#x69;&#x73;&#64;&#101;&#120;&#x68;&#101;&#x72;&#x62;&#x6f;&#x2e;&#111;&#x72;&#x67;</a></p>
 
 <p><a href="https://github.com/Somasis/git-gerrit" data-bare-link="true">https://github.com/Somasis/git-gerrit</a></p>
 
@@ -243,7 +260,7 @@ such as your Gerrit username should be set in Git's configuration.</p>
 
 <p>Licensed under the ISC license.</p>
 
-<p>Copyright (c) 2015 Kylie McClain <a href="&#109;&#x61;&#x69;&#108;&#116;&#x6f;&#58;&#x73;&#111;&#x6d;&#x61;&#x73;&#x69;&#115;&#x40;&#101;&#x78;&#x68;&#x65;&#114;&#x62;&#x6f;&#46;&#x6f;&#x72;&#x67;" data-bare-link="true">&#x73;&#111;&#x6d;&#97;&#115;&#x69;&#115;&#x40;&#x65;&#120;&#104;&#x65;&#x72;&#x62;&#111;&#x2e;&#111;&#114;&#x67;</a></p>
+<p>Copyright (c) 2015 Kylie McClain <a href="&#109;&#97;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#115;&#111;&#109;&#97;&#115;&#105;&#115;&#64;&#101;&#120;&#104;&#x65;&#114;&#98;&#x6f;&#x2e;&#x6f;&#114;&#x67;" data-bare-link="true">&#115;&#x6f;&#x6d;&#x61;&#115;&#x69;&#x73;&#64;&#101;&#120;&#x68;&#101;&#x72;&#98;&#111;&#x2e;&#111;&#x72;&#103;</a></p>
 
 <p>Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
