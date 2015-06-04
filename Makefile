@@ -5,7 +5,7 @@ BINDIR?=/usr/bin
 DOCDIR?=/usr/share/doc/git-gerrit
 MANDIR?=/usr/share/man/man1
 
-all: clean man html
+all: man html
 
 clean:
 	rm -rf $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
