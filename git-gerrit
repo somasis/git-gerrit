@@ -395,7 +395,7 @@ review_patches() { # review_patches <action> <patches>
         if patch_exists "$patch";then
             local query=$(query_patches "${patch}")
             patchset=$(echo "${query[@]}" | cut -d$'\t' -f2)
-            gerrit review "${patch},${patchset}" $action || die "Failed to run ${action} ${patch},${patchset}" $err_review_failed
+            gerrit review "${patch},${patchset}" $action || die "Failed to run ${action} ${patch},${patchset}. Did you already submit it?" $err_review_failed
             info $(printf "$me: ${msg}" "${patch}")
         else
             die "Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
