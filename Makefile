@@ -2,17 +2,19 @@ DESTDIR?=build/
 BINDIR?=/usr/bin
 MANDIR?=/usr/share/man/man1
 
+VERSION=0.1
+
 all: clean man
 
 clean:
 	rm -rf $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
-	rm -f git-gerrit git-gerrit.1 git-gerrit.1.html
+	rm -f git-gerrit.1 git-gerrit.1.html
 
 man:
-    ronn --roff git-gerrit.1.ronn
+	ronn --roff --organization="git-gerrit $(VERSION)" git-gerrit.1.ronn
 
 html:
-    ronn --html git-gerrit.1.html
+	ronn --html --organization="git-gerrit $(VERSION)" git-gerrit.1.html
 
 install:
 	mkdir -p $(DESTDIR)$(BINDIR)
