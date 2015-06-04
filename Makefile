@@ -1,10 +1,11 @@
-DESTDIR?=build/
-BINDIR?=/usr/bin
-MANDIR?=/usr/share/man/man1
-
 VERSION=0.1
 
-all: clean man
+DESTDIR?=build/
+BINDIR?=/usr/bin
+DOCDIR?=/usr/share/doc/git-gerrit
+MANDIR?=/usr/share/man/man1
+
+all: clean man html
 
 clean:
 	rm -rf $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
@@ -21,3 +22,5 @@ install:
 	install git-gerrit $(DESTDIR)$(BINDIR)/git-gerrit
 	mkdir -p $(DESTDIR)$(MANDIR)
 	install git-gerrit.1 $(DESTDIR)$(MANDIR)/git-gerrit.1
+	mkdir -p $(DESTDIR)$(DOCDIR)
+	install git-gerrit.1.html $(DESTDIR)$(DOCDIR)/git-gerrit.1.html
