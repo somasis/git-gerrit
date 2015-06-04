@@ -72,7 +72,7 @@ In addition, `git-gerrit` has some other features, such as...
 
 ## COMMANDS
 
-If no command is given, `git gerrit review` is the default action.
+If no command is given, `git-gerrit review` is the default action.
 
 - `review` [branch:<project branch>] [topic:<patch topic>] [type:<review|draft>]:
     Sends all local commits to Gerrit for review.
@@ -93,7 +93,7 @@ If no command is given, `git gerrit review` is the default action.
     the location of the failed patches. 
 
 - `pull`:
-    An alias for `pull`.
+    An alias for `get`.
 
 - `-2`, `-1`, `0`, `+1`, `+2` <patches>:
     Apply the corrisponding Code-Review to each patch given.
