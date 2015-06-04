@@ -1,0 +1,205 @@
+# git-gerrit(1) -- a non-interactive, command-line gerrit interface
+
+## SYNOPSIS
+
+`git gerrit` [branch:<project branch>] [topic:<patch topic>]
+[type:<review|draft>]
+
+`git gerrit` review [branch:<project branch>] [topic:<patch topic>]
+[type:<review|draft>]
+
+`git gerrit` push [branch:<project branch>] [topic:<patch topic>]
+[type:<review|draft>]
+
+`git gerrit` get <patches>
+
+`git gerrit` pull <patches>
+
+`git gerrit` <-2|-1|0|+1|+2> <patches>
+
+`git gerrit` retest <patches>
+
+`git gerrit` submit <patches>
+
+`git gerrit` ls [query]
+
+`git gerrit` list [query]
+
+`git gerrit` info <patches>
+
+`git gerrit` browse <patches>
+
+`git gerrit` query <query>
+
+`git gerrit` help
+
+`git gerrit` version
+
+## DESCRIPTION
+
+A non-interactive, command-line interface to a Gerrit Code Review server.
+
+`git-gerrit` aims to be an interface to Gerrit that does not impede your
+workflow, but instead acts as a way to compliment it, and integrate the
+normal workflow of using Git and writing code into the code review process.
+
+Unlike the Gerrit web interface, it does not aim to be *the* definitive
+way to access Gerrit and review code. Instead, `git-gerrit` means to add
+features that are similar in functionality to Git's commands, and tries to
+share the same general feel. It does not ask for unneeded input, and it
+does not provide comment viewing; the web is for reading, the command line
+is for getting your work done, and testing every last patch from the 3 page
+patch queue you've been neglecting.
+
+## FEATURES
+
+`git-gerrit` has a few main features: querying a Gerrit server, pulling
+patches from it, submitting patches for review, and applying Code-Reviews
+to patches on Gerrit.
+
+It also shares some compatibility with a program it aims to replace,
+git-review(1), and can read it's .gitreview configuration files usually
+located in the root of a Git repository.
+
+In addition, `git-gerrit` has some other features, such as...
+
+- Opening URLs of patches on the remote Gerrit server in your browser.:
+
+- Running raw queries on the Gerrit server, returning formatted results.:
+
+- Showing in-depth information about certain patches, without needing to
+  open a browser.
+
+## COMMANDS
+
+If no command is given, `git gerrit review` is the default action.
+
+- `review` [branch:<project branch>] [topic:<patch topic>] [type:<review|draft>]:
+    Sends all local commits to Gerrit for review.
+    
+    If you set `type` to `draft`, that will push patches as drafts, rather
+    than world-viewable patches.
+    
+    If no `branch` is given, `branch:<current branch>` is assumed.
+    If no `type` is given, `type:review` is assumed.
+
+- `push`:
+    An alias for `review`.
+
+- `get` <patches>:
+    Fetches all patches given as arguments from Gerrit, and then applies
+    them to your working copy of the tree. Any conflicts will result the
+    `git am` session being halted, and `git-gerrit` will quit, printing
+    the location of the failed patches. 
+
+- `pull`:
+    An alias for `pull`.
+
+- `-2`, `-1`, `0`, `+1`, `+2` <patches>:
+    Apply the corrisponding Code-Review to each patch given.
+
+- `submit` <patches>:
+    Submit each patch given to the upstream copy of the repository.
+
+- `retest` <patches>:
+    Apply Retest+1 to each patch given. This probably only does anything
+    if you have Jenkins integrated with your Gerrit server.
+
+- `list` [query]:
+    List reviews matching <query> on the current project.
+    If no query is given, "status:open" is the default query.
+
+- `browse` <patches>:
+    Opens the URL to each patch with $BROWSER.
+    
+    Fails if $BROWSER is not set.
+
+- `query` <query>:
+    Runs a raw query on Gerrit, and shows the results formatted.
+
+- `help`:
+    Shows a short help message.
+
+- `version`:
+    Prints the current version and copyright information.
+
+## CONFIGURATION
+
+`git-gerrit` does not have a large amount of configuration variables at
+the moment, other than configuring how it connects to Gerrit.
+
+### Git configuration variables 
+- `gitreview.username`:
+    This sets the username which is used for connecting to Gerrit.
+    For example, if you have a Gerrit server which is located at
+    **gerrit.foobar.biz**, and `gitreview.username` is set to **Moo**,
+    `git-gerrit` would connect to the SSH server that Gerrit runs with
+    **Moo@gerrit.foobar.biz**. If this is not set, SSH would connect
+    with the username you are logged in as locally.
+    
+    ex. `gitreview.username = Moo`
+
+- `remote.gerrit.url`:
+    This is where the Gerrit instance's SSH remote is set. `git-gerrit`
+    adds this by itself if it does not exist, using information from the
+    .gitreview file in the root of the Git repository.
+    
+    ex. `remote.gerrit.url = ssh://Moo@gerrit.foobar.biz:29418/baz.git`
+
+### .gitreview variables
+- `host`:
+    Required variable.  This is where the host that the Gerrit server is
+    located should be entered.
+    
+    ex. `host=gerrit.foobar.biz`
+
+- `port`:
+    Optional variable. This is the port which the Gerrit server's SSH
+    server is served on. If it is not set, we assume **29418**, which is
+    the default SSH port for a Gerrit server.
+    
+    ex. `port=5000`, which would make `git-gerrit` connect to
+    **ssh://gerrit.foobar.biz:5000**.
+
+- `project`:
+    Required variable. This is the name of the repository on Gerrit.
+    
+    ex. `project=baz`, which would make `git-gerrit` push and pull patches
+    from **ssh://gerrit.foobar.biz:5000/baz.git**.
+
+## DIFFERENCES FROM GIT-REVIEW(1)
+
+Unlike git-review(1), `git-gerrit` does not prompt when you attempt to
+send multiple commits to Gerrit, which would create multiple patches.
+
+It does not support all parameters that a .gitreview file could contain,it
+only looks for the **host**, **project**, and **port** parameters. Things
+such as your Gerrit username should be set in Git's configuration.
+
+## COPYRIGHT
+
+Written by Kylie McClain <somasis@exherbo.org>
+
+<https://github.com/Somasis/git-gerrit>
+
+## LICENSE
+
+Licensed under the ISC license.
+
+Copyright (c) 2015 Kylie McClain <somasis@exherbo.org>
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+## SEE ALSO
+
+git-review(1), git(1)
