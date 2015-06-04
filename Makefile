@@ -1,4 +1,4 @@
-VERSION=0.1
+VERSION=0.1.1
 
 DESTDIR?=build/
 BINDIR?=/usr/bin
@@ -15,7 +15,7 @@ man:
 	ronn --roff --organization="git-gerrit $(VERSION)" git-gerrit.1.ronn
 
 html:
-	ronn --html --organization="git-gerrit $(VERSION)" git-gerrit.1.html
+	ronn --html --organization="git-gerrit $(VERSION)" git-gerrit.1.ronn
 
 install:
 	mkdir -p $(DESTDIR)$(BINDIR)
