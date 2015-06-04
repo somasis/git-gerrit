@@ -1,24 +1,26 @@
-# git-gerrit, a gerrit interface
+# git-gerrit, a non-interactive, command-line gerrit interface
 
-An [ISC-licensed](LICENSE) program which allows for reviewing, downloading,
-and querying a Gerrit server via SSH, from the command line.
+An [ISC-licensed](#License) program which allows for reviewing patches,
+downloading patches, and querying a Gerrit server via SSH, from the
+command line. It aims to be unobtrusive and fast.
 
 ## Requirements
 Your distribution likely has most of the requirements packaged already.
 
-- [jshon](https://github.com/keenerd/jshon)
 - [git](http://git-scm.com)
+- [jshon](https://github.com/keenerd/jshon)
 - [ssh](http://www.openssh.com/)
+- [ronn](https://github.com/rtomayko/ronn), to build manpages
 - coreutils (tr, paste, cut, wc, etc.)
 - sed
 - grep
-- [ronn](https://github.com/rtomayko/ronn), if you want to generate manpages.
 
 ## Installation
 **Exherbo users, there is an exheres in ::somasis; dev-scm/git-gerrit.**
 
 1. `git clone https://github.com/Somasis/git-gerrit` or [download a release].
-2. `make install` as root
+2. `make`
+3. `make install` as root
 
 ## Usage
 After installation, run `man git-gerrit`. If you prefer, you can also just do
@@ -65,3 +67,25 @@ go between working on code and review lists of patches without interrupting
 the workflow by needing web interface usage for simple tasks.
 
 [download a release]: https://github.com/Somasis/git-gerrit/releases
+
+## License
+
+Licensed under the ISC license.
+
+Copyright (c) 2015 Kylie McClain <somasis@exherbo.org>
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+## Author
+
+Written by Kylie McClain <somasis@exherbo.org>, 2015.
