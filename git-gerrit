@@ -366,8 +366,11 @@ get_patches() { # get_patches <patches>
             info "$me: Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
         fi
     done
-    git am <"$tmp"
-    rm -f "$tmp"
+    if git am <"$tmp";then
+        rm -f "$tmp"
+    else
+        die "\`git am\` failed, downloaded patches are stored at \"${tmp}\"." $err_patches_failed
+    fi
 }
 
 review_patches() { # review_patches <action> <patches>
@@ -450,6 +453,7 @@ err_no_results=10
 err_invalid_review=11
 err_review_failed=12
 err_no_browser=13
+err_patches_failed=14
 err_prog_not_installed=70
 
 # make sure that the programs we need are there
