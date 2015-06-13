@@ -363,7 +363,7 @@ get_patches() { # get_patches <patches>
             git fetch $(config get remote.gerrit.url) "${ref}"
             git format-patch -1 --stdout FETCH_HEAD >> "$tmp"
         else
-            info "$me: Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
+            info "$me: Patch #${patch} does not exist on the Gerrit instance"
         fi
     done
     if git am <"$tmp";then
