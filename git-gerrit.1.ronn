@@ -63,9 +63,9 @@ located in the root of a Git repository.
 
 In addition, `git-gerrit` has some other features, such as...
 
-- Opening URLs of patches on the remote Gerrit server in your browser.:
+- Opening URLs of patches on the remote Gerrit server in your browser.
 
-- Running raw queries on the Gerrit server, returning formatted results.:
+- Running raw queries on the Gerrit server, returning formatted results.
 
 - Showing in-depth information about certain patches, without needing to
   open a browser.
@@ -104,6 +104,9 @@ If no command is given, `git-gerrit review` is the default action.
 - `retest` <patches>:
     Apply Retest+1 to each patch given. This probably only does anything
     if you have Jenkins integrated with your Gerrit server.
+
+- `ls`:
+    An alias for `list`.
 
 - `list` [query]:
     List reviews matching <query> on the current project.
@@ -169,13 +172,13 @@ the moment, other than configuring how it connects to Gerrit.
 
 ## CONFIGURATION EXAMPLES
 
-### `.gitreview`
+### .gitreview
     [gerrit]
     host=gerrit.foobar.biz
     port=5000
     project=baz
 
-### `.git/config` (snippet)
+### .git/config (snippet)
     [gitreview]
         username = Moo
 
