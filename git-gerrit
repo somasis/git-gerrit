@@ -30,6 +30,10 @@
 #      info <patches>
 #           Show more in-depth information about each patch given.
 #
+#      diff <patches>
+#           Show the `git log --patch-with-stat` output of the commits
+#           between the HEAD and the HEAD with patches applied.
+#
 #      browse <patches>
 #           Open the URL to each patch with $BROWSER.
 #
@@ -360,16 +364,20 @@ get_patches() { # get_patches <patches>
         if patch_exists "project:${gerrit_project} ${patch}";then
             debug "$me: Downloading patch #${patch}..."
             ref=$(query_patches "${patch}" | tail -1 | cut -d$'\t' -f8)
-            git fetch $(config get remote.gerrit.url) "${ref}"
+            git fetch $(config get remote.gerrit.url) "${ref}" 1>&2
             git format-patch -1 --stdout FETCH_HEAD >> "$tmp"
         else
-            info "$me: Patch #${patch} does not exist on the Gerrit instance"
+            info "$me: Patch #${patch} does not exist on the Gerrit instance" 1>&2
         fi
     done
-    if git am -3 <"$tmp";then
-        rm -f "$tmp"
+    if [[ -z "${noapply}" ]];then
+        if git am -3 <"$tmp";then
+            rm -f "$tmp"
+        else
+            die "\`git am\` failed, downloaded patches are stored at \"${tmp}\"." $err_patches_failed
+        fi
     else
-        die "\`git am\` failed, downloaded patches are stored at \"${tmp}\"." $err_patches_failed
+        echo "$tmp"
     fi
 }
 
@@ -433,6 +441,18 @@ patch_exists() { # takes input from stdin, expects query_patches output, exits 1
         debug "$me: Patch #${patch} does not exist on the Gerrit instance"
         return 1
     fi
+}
+
+diff_patches() {
+    before=$(git rev-parse HEAD)
+    for patch in "$@";do
+        nonfatal git stash >/dev/null 2>&1
+        get_patches "$patch"
+        after=$(git rev-parse HEAD)
+        git log --patch-with-stat ${before}..${after}
+        git reset --hard ${before} >/dev/null 2>&1
+        nonfatal git stash pop >/dev/null 2>&1
+    done
 }
 
 # vars, shopts, etc
@@ -537,6 +557,13 @@ case "$1" in
             die "A patch is required" $err_args
         fi
         open_patch_urls "$@"
+    ;;
+    diff)
+        shift
+        if [[ -z "$@" ]];then
+            die "A patch is required" $err_args
+        fi
+        diff_patches "$@"
     ;;
     ""|review|push)
         shift

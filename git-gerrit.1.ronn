@@ -112,6 +112,11 @@ If no command is given, `git-gerrit review` is the default action.
     List reviews matching <query> on the current project.
     If no query is given, "status:open" is the default query.
 
+- `diff` <patches>:
+    Shows the `git log` and `diff` of the patches if applied onto
+    the HEAD. Note that this sends any unstaged changes to the
+    stash, and puts them back afterwards.
+
 - `browse` <patches>:
     Opens the URL to each patch with $BROWSER.
     
