@@ -25,6 +25,8 @@
 
 `git gerrit` list [query]
 
+`git gerrit` diff <patches>
+
 `git gerrit` info <patches>
 
 `git gerrit` browse <patches>
