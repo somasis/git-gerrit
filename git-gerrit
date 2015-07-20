@@ -215,6 +215,11 @@ page() {
     fi
 }
 
+mktmp() {
+    local file="${TMPDIR:-/tmp}/$me.${RANDOM}"
+    touch "$file" && echo "$file"
+}
+
 # gerrit operations
 gerrit() {
     dossh gerrit "$@"
@@ -359,7 +364,7 @@ info_patches() { # info_patches <patches>
 }
 
 get_patches() { # get_patches <patches>
-    tmp=$(mktemp -t "$me.XXXXXXXX")
+    tmp=$(mktmp)
     for patch in $@;do
         if patch_exists "project:${gerrit_project} ${patch}";then
             debug "$me: Downloading patch #${patch}..."
