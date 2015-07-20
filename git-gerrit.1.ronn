@@ -119,6 +119,10 @@ If no command is given, `git-gerrit review` is the default action.
     the HEAD. Note that this sends any unstaged changes to the
     stash, and puts them back afterwards.
 
+- `info` <patches>:
+    Shows various details about a patch, like it's changeset, number,
+    Change-Id, status, URL, and git reference.
+
 - `browse` <patches>:
     Opens the URL to each patch with $BROWSER.
     
