@@ -229,7 +229,7 @@ query_patches() {
     local query="$@"
     debug "$me: querying ${gerrit_url} for patches matching \"${query}\""
 
-    local json=$(gerrit query --format=JSON --all-approvals --current-patch-set "${query}" | tr -d '\t' | sed "s#\\\\n##g;s#\\\\\"#'#g")
+    local json=$(gerrit query --format=JSON --all-approvals --current-patch-set "${query}" | sed -e $'s/\t//g' -e "s#\\\\n##g;s#\\\\\"#'#g")
 
     if [[ $(echo "${json}" | wc -l) -eq 1 ]];then
         [[ "${nonfatal}" ]] || die "No results for query \"${query}\"" $err_no_results
@@ -243,6 +243,7 @@ query_patches() {
     # after that's done, we use paste to correctly sequence the lines so
     # that we can just parse it easily with cut.
     # changenum|patchset|project|branch|changeid|status|url|ref|subject|owner|email|topic
+    tmp=$(mktmp)
     local parsed=$(
         printf '%s\n' "$json" | \
             while read line;do
@@ -262,10 +263,13 @@ query_patches() {
                                         -e author           \
                                         -e name -up         \
                                         -e email -uppp      \
-                                -e topic -u                 |
-                    tr -d $'\t' | paste -s -d $'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\t'$'\n' | grep -v '^$'
+                                -e topic -u > "$tmp"
+                    tmp2=$(mktmp)
+                    tr -d $'\t' <"$tmp" > "$tmp2"
+                    paste -s -d '\t\t\t\t\t\t\t\t\t\t\t\t\n' "$tmp2" | grep -v '^$'
             done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
+    rm -f "$tmp" "$tmp2"
     echo -e "${parsed[@]}"
 }
 
