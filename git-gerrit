@@ -1,5 +1,5 @@
 #!/bin/bash
-# git-gerrit - list, download, and review gerrit patches - version 0.1.3
+# git-gerrit - list, download, and review gerrit patches - version @@VERSION@@
 # usage: git gerrit [action]
 # Interact with a Gerrit server via SSH; list, pull, and create patches.
 #
@@ -373,9 +373,9 @@ info_patches() { # info_patches <patches>
 }
 
 get_patches() { # get_patches <patches>
-    for patch in $@;do
+    tmp=$(mktmp)
+    for patch in ${@};do
         if [[ "${patch}" == [0-9]* ]] && patch_exists "project:${gerrit_project} ${patch}";then
-            tmp=$(mktmp)
             debug "$me: Downloading patch #${patch}..."
             ref=$(query_patches "${patch}" | tail -1 | cut -d$'\t' -f8)
             git fetch $(config get remote.gerrit.url) "${ref}" 1>&2
@@ -385,7 +385,8 @@ get_patches() { # get_patches <patches>
                 patch="project:${gerrit_project} status:open ${patch}"
             fi
             info "$me: Getting patches matching \"${patch}\"..."
-            get_patches $(list_patches "${patch}" | cut -d':' -f1)
+            patches_applied=
+            get_patches $(query_patches "${patch}" | cut -d$'\t' -f1)
             patches_applied=true
         else
             info "$me: Patch #${patch} does not exist on the Gerrit instance" 1>&2
