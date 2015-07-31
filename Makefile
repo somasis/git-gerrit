@@ -1,15 +1,20 @@
-VERSION=0.1.2
+VERSION=0.1.3
 
 DESTDIR?=build/
 BINDIR?=/usr/bin
 DOCDIR?=/usr/share/doc/git-gerrit
 MANDIR?=/usr/share/man/man1
 
-all: man html
+all: prepare man html
 
 clean:
 	rm -rf $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
 	rm -f git-gerrit.1 git-gerrit.1.html
+	mv git-gerrit.orig git-gerrit
+
+prepare:
+	cp git-gerrit git-gerrit.orig
+	sed -e "s/@@VERSION@@/$(VERSION)/g" -i git-gerrit
 
 man:
 	ronn --roff --organization="git-gerrit $(VERSION)" git-gerrit.1.ronn

@@ -1,5 +1,5 @@
 #!/bin/bash
-# git-gerrit - list, download, and review gerrit patches - version 0.1.2
+# git-gerrit - list, download, and review gerrit patches - version 0.1.3
 # usage: git gerrit [action]
 # Interact with a Gerrit server via SSH; list, pull, and create patches.
 #
