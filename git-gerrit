@@ -39,8 +39,8 @@
 #           Show the `git log --patch-with-stat` output of the commits
 #           between the HEAD and the HEAD with patches applied.
 #
-#      browse <patches>
-#           Open the URL to each patch with $BROWSER.
+#      browse <patches|query>
+#           Open the URL to each patch (or patch matching query) with $BROWSER.
 #
 #      query <query>
 #           Run a raw query on Gerrit and show the results.
@@ -440,14 +440,23 @@ open_patch_urls() {
     if [[ -z "${BROWSER}" ]];then
         die "You need a browser set as \$BROWSER" $err_no_browser
     fi
-    for patch in $@;do
-        if patch_exists "$patch";then
-            local url=$(query_patches "${patch}" | cut -d$'\t' -f7)
+    for patch in ${@};do
+        if [[ "${patch}" == [0-9]* ]] && patch_exists "project:${gerrit_project} ${patch}";then
+            true
+        elif [[ "${patch}" != [0-9]* ]];then
+            if [[ "${patch}" != *:* ]];then
+                patch="project:${gerrit_project} status:open ${patch}"
+            fi
+            info "$me: Getting patches matching \"${patch}\"..."
+        else
+            info "$me: Patch #${patch} does not exist on the Gerrit instance" 1>&2
+            return 1
+        fi
+        local urls=( $(query_patches "${patch}" | cut -d$'\t' -f7) )
+        for url in ${urls[@]};do
             info "$me: Opening \"${url}\" in \`${BROWSER}\`..."
             ${BROWSER} "$url" & disown
-        else
-            die "Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
-        fi
+        done
     done
 }
 
