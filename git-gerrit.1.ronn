@@ -11,9 +11,9 @@
 `git gerrit` push [branch:<project branch>] [topic:<patch topic>]
 [type:<review|draft>]
 
-`git gerrit` get <patches>
+`git gerrit` get <patches|query>
 
-`git gerrit` pull <patches or query>
+`git gerrit` pull <patches|query>
 
 `git gerrit` <-2|-1|0|+1|+2> <patches>
 
