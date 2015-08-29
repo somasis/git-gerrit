@@ -29,7 +29,7 @@
 
 `git gerrit` info <patches>
 
-`git gerrit` browse <patches|query>
+`git gerrit` browse [patches|query]
 
 `git gerrit` query <query>
 
