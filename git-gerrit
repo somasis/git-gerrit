@@ -461,7 +461,7 @@ open_patch_urls() {
         return 0
     fi
     for patch in ${@};do
-        if [[ "${patch}" == [0-9]* ]] && patch_exists "project:${gerrit_project} ${patch}";then
+        if [[ "${patch}" == [0-9]* ]] && patch_exists "${patch}";then
             true
         elif [[ "${patch}" != [0-9]* ]];then
             if [[ "${patch}" != *:* ]];then
