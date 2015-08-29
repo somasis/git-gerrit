@@ -345,6 +345,14 @@ info_patches() { # info_patches <patches>
     # changenum|patchset|project|branch|changeid|status|url|ref|subject|owner|email|topic
     for patch in $@;do
         debug "$me: Getting info about #${patch}..."
+        if [[ "${patch}" == [0-9]* ]] && patch_exists "project:${gerrit_project} ${patch}";then
+            true
+        elif [[ "${patch}" != [0-9]* ]];then
+            if [[ "${patch}" != *:* ]];then
+                patch="project:${gerrit_project} ${patch}"
+            fi
+            info "$me: Getting patches matching \"${patch}\"..."
+        fi
         query_patches "${patch}" | while read line;do
             number=$(echo "$line" | cut -d$'\t' -f1)
             patchset=$(echo "$line" | cut -d$'\t' -f2)
