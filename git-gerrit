@@ -520,6 +520,7 @@ err_review_failed=12
 err_no_browser=13
 err_patches_failed=14
 err_prog_not_installed=70
+err_unknown_command=100
 
 # make sure that the programs we need are there
 type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
@@ -611,5 +612,8 @@ case "$1" in
     ""|review|push)
         shift
         push_patch "$@"
+    ;;
+    *)
+        die "$1: unknown command" $err_unknown_command
     ;;
 esac
