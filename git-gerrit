@@ -32,7 +32,7 @@
 #           List reviews matching <query> on the current project.
 #           If no query is given, "status:open" is default query.
 #
-#      info <patches>
+#      info <patches|query>
 #           Show more in-depth information about each patch given.
 #
 #      diff <patches>
