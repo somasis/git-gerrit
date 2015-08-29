@@ -357,7 +357,7 @@ info_patches() { # info_patches <patches>
             subject=$(echo "$line" | cut -d$'\t' -f9)
             owner=$(echo "$line" | cut -d$'\t' -f10)" <"$(echo "$line" | cut -d$'\t' -f11)">"
             topic=$(echo "$line" | cut -d$'\t' -f12)
-            echo -e "Change #${patch} for ${project}/${branch}, patchset ${patchset}:"
+            echo -e "Change #${number} for ${project}/${branch}, patchset ${patchset}:"
             echo -e "\tSubject:\t${subject}"
             [[ "$topic" ]] && echo -e "\tTopic:\t\t${topic}"
             echo -e "\tOwner:\t\t${owner}"
