@@ -22,10 +22,10 @@
 #           If no colon is in the query, we run the query with
 #           "project:<project> status:open <patch number>".
 #
-#      -2|-1|0|+1|+2 <patches>
+#      -2|-1|0|+1|+2 <patches|query>
 #           Give each patch a corrisponding code review.
 #
-#      submit|retest <patches>
+#      submit|retest <patches|query>
 #           Submit or Retest+1 each patch.
 #
 #      list|ls [query]
@@ -431,16 +431,23 @@ review_patches() { # review_patches <action> <patches>
         ;;
     esac
     for patch in $@;do
-        debug "$me: ${action} #${patch}..."
-        if patch_exists "$patch";then
-            local query=$(query_patches "${patch}")
-            patchset=$(echo "${query[@]}" | cut -d$'\t' -f2)
-            gerrit review "${patch},${patchset}" $action || die "Failed to run ${action} ${patch},${patchset}. Did you already submit it?" $err_review_failed
-            info $(printf "$me: ${msg}" "${patch}")
+        if [[ "${patch}" == [0-9]* ]] && patch_exists "${patch}";then
+            true
+        elif [[ "${patch}" != [0-9]* ]];then
+            if [[ "${patch}" != *:* ]];then
+                patch="status:open ${patch}"
+            fi
+            info "$me: Getting patches matching \"${patch}\"..."
         else
-            die "Patch #${patch} does not exist on the Gerrit instance" $err_patch_nonexistent
+            die "$me: Patch #${patch} does not exist on the Gerrit instance"
         fi
-
+        local query=$(query_patches "${patch}")
+        patches=( $(echo "${query[@]}" | cut -d$'\t' -f1-2 | tr $'\t' ',') )
+        for patch in ${patches[@]};do
+            gerrit review "${patch}" $action || die "Failed to run ${action} ${patch},${patchset}. Did you already submit it?" $err_review_failed
+            patch=${patch%,*}
+            info $(printf "$me: ${msg}" "${patch}")
+        done
     done
 }
 
