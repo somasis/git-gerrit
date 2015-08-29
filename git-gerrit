@@ -599,9 +599,6 @@ case "$1" in
     ;;
     browse)
         shift
-        if [[ -z "$@" ]];then
-            die "A patch is required" $err_args
-        fi
         open_patch_urls "$@"
     ;;
     diff)
