@@ -488,23 +488,26 @@ patch_exists() { # takes input from stdin, expects query_patches output, exits 1
         local input=$(nonfatal query_patches "${1}")
     fi
     if echo "$input" | cut -d$'\t' -f1 | grep -q "^${patch}$";then
-        debug "$me: Patch #${patch} exists on the Gerrit instance"
+        debug "$me: Patch ${patch} exists on the Gerrit instance"
         return 0
     else
-        debug "$me: Patch #${patch} does not exist on the Gerrit instance"
-        return 1
+        die "$me: Patch ${patch} does not exist on the Gerrit instance" "$err_patch_nonexistent"
     fi
 }
 
 diff_patches() {
     before=$(git rev-parse HEAD)
     for patch in "$@";do
-        nonfatal git stash >/dev/null 2>&1
-        get_patches "$patch"
-        after=$(git rev-parse HEAD)
-        git log --patch-with-stat ${before}..${after}
-        git reset --hard ${before} >/dev/null 2>&1
-        nonfatal git stash pop >/dev/null 2>&1
+        if [[ "${patch}" == [0-9]* ]] && patch_exists "${patch}";then
+            nonfatal git stash >/dev/null 2>&1
+            get_patches "$patch" || nonfatal git stash pop >/dev/null 2>&1 && return 1
+            after=$(git rev-parse HEAD)
+            git log --patch-with-stat ${before}..${after}
+            git reset --hard ${before} >/dev/null 2>&1
+            nonfatal git stash pop >/dev/null 2>&1
+        else
+            die "Patch ${patch} does not exist on the Gerrit instance" "$err_patch_nonexistent"
+        fi
     done
 }
 
