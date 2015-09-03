@@ -279,7 +279,12 @@ query_patches() {
 }
 
 list_patches() {
-    query_patches "$@" | while read line; do
+    for patch in "$@";do
+        if [[ "${patch}" != *:* ]];then
+            patch="project:${gerrit_project} status:open ${patch}"
+        fi
+        query_patches "$patch"
+    done | while read line; do
         number=$(echo "$line" | cut -d$'\t' -f1):$(echo "$line" | cut -d$'\t' -f2)
         project=$(echo "$line" | cut -d$'\t' -f3)
         branch=$(echo "$line" | cut -d$'\t' -f4)
