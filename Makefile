@@ -1,8 +1,8 @@
-VERSION=0.1.4.1
+VERSION=0.1.5
 
 DESTDIR?=build/
 BINDIR?=/usr/bin
-DOCDIR?=/usr/share/doc/git-gerrit
+DOCDIR?=/usr/share/doc/git-gerrit-$(VERSION)
 MANDIR?=/usr/share/man/man1
 
 all: prepare man html
