@@ -2,32 +2,29 @@
 
 ## SYNOPSIS
 
-`git gerrit` [branch:<project branch>] [topic:<patch topic>]
-[type:<review|draft>]
+`git gerrit` [branch:<project branch>] [topic:<patch topic>] [type:<review|draft>]
 
-`git gerrit` review [branch:<project branch>] [topic:<patch topic>]
-[type:<review|draft>]
+`git gerrit` review [branch:<project branch>] [topic:<patch topic>] [type:<review|draft>]
 
-`git gerrit` push [branch:<project branch>] [topic:<patch topic>]
-[type:<review|draft>]
+`git gerrit` push [branch:<project branch>] [topic:<patch topic>] [type:<review|draft>]
 
 `git gerrit` get <patches|query>
 
 `git gerrit` pull <patches|query>
 
-`git gerrit` <-2|-1|0|+1|+2> <patches>
+`git gerrit` <-2|-1|0|+1|+2> <patches|query>
 
-`git gerrit` retest <patches>
+`git gerrit` retest <patches|query>
 
-`git gerrit` submit <patches>
+`git gerrit` submit <patches|query>
 
 `git gerrit` ls [query]
 
 `git gerrit` list [query]
 
-`git gerrit` diff <patches>
+`git gerrit` diff <patches|query>
 
-`git gerrit` info <patches>
+`git gerrit` info <patches|query>
 
 `git gerrit` browse [patches|query]
 
@@ -72,6 +69,8 @@ In addition, `git-gerrit` has some other features, such as...
 - Showing in-depth information about certain patches, without needing to
   open a browser.
 
+- Showing diffs of patches, via the warm and cozy interface of `git log`.
+
 ## COMMANDS
 
 If no command is given, `git-gerrit review` is the default action.
@@ -88,7 +87,7 @@ If no command is given, `git-gerrit review` is the default action.
 - `push`:
     An alias for `review`.
 
-- `get` <patches>:
+- `get` <patches|query>:
     Fetches all patches given as arguments from Gerrit, and then applies
     them to your working copy of the tree. Any conflicts will result the
     `git am` session being halted, and `git-gerrit` will quit, printing
@@ -103,33 +102,43 @@ If no command is given, `git-gerrit review` is the default action.
 - `pull`:
     An alias for `get`.
 
-- `-2`, `-1`, `0`, `+1`, `+2` <patches>:
-    Apply the corrisponding Code-Review to each patch given.
+- `-2`, `-1`, `0`, `+1`, `+2` <patches|query>:
+    Apply the corrisponding Code-Review to each patch (or patch matching
+    query) given.
 
-- `submit` <patches>:
-    Submit each patch given to the upstream copy of the repository.
+- `submit` <patches|query>:
+    Submit each patch (or patch matching query) given to the upstream
+    copy of the repository.
 
-- `retest` <patches>:
-    Apply Retest+1 to each patch given. This probably only does anything
-    if you have Jenkins integrated with your Gerrit server.
+- `retest` <patches|query>:
+    Apply Retest+1 to each patch (or patch matching query) given. This
+    probably only does anything if you have Jenkins integrated with your
+    Gerrit server.
 
 - `ls`:
     An alias for `list`.
 
 - `list` [query]:
-    List reviews matching <query> on the current project.
+    List reviews matching [query] on the current project.
+    If a query does not contain a colon (:), "status:open" is prepended
+    to the query. This means that you can use `list` to filter down the
+    open issues for the current project.
+
     If no query is given, "status:open" is the default query.
 
-- `diff` <patches>:
+    For a more flexible, but less automatic listing of patches, use
+    `query`.
+
+- `diff` <patches|query>:
     Shows the `git log` and `diff` of the patches if applied onto
     the HEAD. Note that this sends any unstaged changes to the
     stash, and puts them back afterwards.
 
-- `info` <patches>:
+- `info` <patches|query>:
     Shows various details about a patch, like it's changeset, number,
     Change-Id, status, URL, and git reference.
 
-- `browse` <patches>:
+- `browse` <patches|query>:
     Opens the URL to each patch with $BROWSER.
     
     If argument is not only numbers, it is assumed to be a query, and
