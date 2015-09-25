@@ -271,7 +271,7 @@ query_patches() {
                                 -e topic -u > "$tmp"
                     tmp2=$(mktmp)
                     tr -d $'\t' <"$tmp" > "$tmp2"
-                    paste -s -d '\t\t\t\t\t\t\t\t\t\t\t\t\n' "$tmp2" | grep -v '^$'
+                    $paste -s -d '\t\t\t\t\t\t\t\t\t\t\t\t\n' "$tmp2" | grep -v '^$'
             done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
     rm -f "$tmp" "$tmp2"
@@ -540,6 +540,13 @@ err_unknown_command=100
 # make sure that the programs we need are there
 type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
 type -fPp jshon >/dev/null 2>&1 || die "\`jshon\` isn't installed!" $err_prog_not_installed
+if type -fPp gpaste >/dev/null 2>&1;then
+    paste=gpaste
+elif type -fPp paste >/dev/null 2>&1;then
+    paste=paste
+else
+    die "\`paste\`/\`gpaste\` isn't installed!" $err_prog_not_installed
+fi
 
 # special case
 if [[ "$1" == 'help' ]];then
