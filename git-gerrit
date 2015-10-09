@@ -1,58 +1,8 @@
 #!/bin/bash
 # git-gerrit - list, download, and review gerrit patches - version @@VERSION@@
-# usage: git gerrit [action]
-# Interact with a Gerrit server via SSH; list, pull, and create patches.
 #
-# Reads git-review-style configuration files from the top directory of
-# the current git repository.
-#
-# If no action is given, commits will be pushed for review.
-#
-# Actions:
-#      review|push [branch:<project branch>] [topic:<patch topic>]
-#                  [type:<review|draft>]
-#           Send all local commits to Gerrit for review.
-#           If no 'type' is given, 'type:review' is assumed.
-#
-#      get|pull <patches|query>
-#           Download and apply patches from Gerrit.
-#           If argument is not only numbers, it is assumed to
-#           be a query, and open patches matching the query are
-#           pulled from Gerrit.
-#           If no colon is in the query, we run the query with
-#           "project:<project> status:open <patch number>".
-#
-#      -2|-1|0|+1|+2 <patches|query>
-#           Give each patch a corrisponding code review.
-#
-#      submit|retest <patches|query>
-#           Submit or Retest+1 each patch.
-#
-#      list|ls [query]
-#           List reviews matching <query> on the current project.
-#           If no query is given, "status:open" is default query.
-#
-#      info <patches|query>
-#           Show more in-depth information about each patch given.
-#
-#      diff <patches>
-#           Show the `git log --patch-with-stat` output of the commits
-#           between the HEAD and the HEAD with patches applied.
-#
-#      browse [patches|query]
-#           Open the URL to each patch (or patch matching query) with $BROWSER.
-#
-#      query <query>
-#           Run a raw query on Gerrit and show the results.
-#
-#      help
-#           Show this help message.
-#
-#      version
-#           Print current version and copyright.
-#
-# End of help.
 # Copyright (c) 2015 Kylie McClain <somasis@exherbo.org>
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -98,35 +48,16 @@ die() { # die <err msg> <err code> or die <err code>
     exit $err_code
 }
 
-help() {
-    sed -n '/^#/!d;s/^# //;s/^#//;3,${p;}' "$0" | \
-        while IFS= read help_line;do
-            if [[ "$help_line" == "End of help." ]];then
-                exit 0
-            else
-                printf "%s\n" "$help_line"
-            fi
-        done
-    exit 0
-}
-
 version() {
-    sed 's/^# //;s/.* - version/'"${0##*/}"'/;2q;$!d' "$0"
-    copyright
-    exit 0
-}
-
-copyright() {
-    sed -n '/^#/!d;s/^# //;s/^#//;/End of help./,${p;}' "$0" | \
+    sed '1d;s/^# //;s/^#//;s/ - .* - version//' "$0" | \
     while IFS= read copyright_line;do
-        if [[ "$copyright_line" == "End of help." ]];then
-            true
-        elif [[ "$copyright_line" == "End of copyright." ]];then
+        if [[ "$copyright_line" == "End of copyright." ]];then
             break
         else
             printf "%s\n" "$copyright_line"
         fi
     done
+    exit 0
 }
 
 in_git_dir() {
@@ -549,10 +480,8 @@ else
 fi
 
 # special case
-if [[ "$1" == 'help' ]];then
-    git gerrit --help;exit $?
-elif [[ "$1" == "-h" ]];then
-    help
+if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]];then
+    man git-gerrit; exit $?
 elif [[ "$1" == "version" || "$1" == "--version" ]];then
     version
 fi
