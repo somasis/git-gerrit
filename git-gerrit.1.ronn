@@ -91,7 +91,7 @@ If no command is given, `git-gerrit review` is the default action.
     Fetches all patches given as arguments from Gerrit, and then applies
     them to your working copy of the tree. Any conflicts will result the
     `git am` session being halted, and `git-gerrit` will quit, printing
-    the location of the failed patches. 
+    the location of the failed patches.
 
     If argument is not only numbers, it is assumed to be a query, and
     open patches matching the query are pulled from Gerrit.
@@ -163,7 +163,7 @@ If no command is given, `git-gerrit review` is the default action.
 `git-gerrit` does not have a large amount of configuration variables at
 the moment, other than configuring how it connects to Gerrit.
 
-### Git configuration variables 
+### Git configuration variables
 - `gitreview.username`:
     This sets the username which is used for connecting to Gerrit.
     For example, if you have a Gerrit server which is located at
