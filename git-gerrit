@@ -179,7 +179,6 @@ query_patches() {
     # after that's done, we use paste to correctly sequence the lines so
     # that we can just parse it easily with cut.
     # changenum|patchset|project|branch|changeid|status|url|ref|subject|owner|email|topic
-    tmp=$(mktmp)
     local parsed=$(
         printf '%s\n' "$json" | \
             while read line;do
@@ -199,13 +198,11 @@ query_patches() {
                                         -e author           \
                                         -e name -up         \
                                         -e email -uppp      \
-                                -e topic -u > "$tmp"
-                    tmp2=$(mktmp)
-                    tr -d $'\t' <"$tmp" > "$tmp2"
-                    $paste -s -d '\t\t\t\t\t\t\t\t\t\t\t\t\n' "$tmp2" | grep -v '^$'
+                                -e topic -u                 \
+                                | tr -d $'\t'               \
+                                | sed '$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;s/\n/\t/g' | grep -v '^$'
             done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
-    rm -f "$tmp" "$tmp2"
     echo -e "${parsed[@]}"
 }
 
@@ -471,13 +468,6 @@ err_unknown_command=100
 # make sure that the programs we need are there
 type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
 type -fPp jshon >/dev/null 2>&1 || die "\`jshon\` isn't installed!" $err_prog_not_installed
-if type -fPp gpaste >/dev/null 2>&1;then
-    paste=gpaste
-elif type -fPp paste >/dev/null 2>&1;then
-    paste=paste
-else
-    die "\`paste\`/\`gpaste\` isn't installed!" $err_prog_not_installed
-fi
 
 # special case
 if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]];then
