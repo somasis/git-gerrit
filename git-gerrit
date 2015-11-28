@@ -209,9 +209,9 @@ query_patches() {
 list_patches() {
     for patch in "${@:-}";do
         if [[ "${patch}" != *:* || "${patch}" != [0-9]* ]];then
-            patch="status:open ${patch}"
+            patch="status:open${patch:+ $patch}"
         fi
-        query_patches "project:${gerrit_project} $patch"
+        query_patches "project:${gerrit_project}${patch:+ $patch}"
     done |
     while read line; do
         number=$(echo "$line" | cut -d$'\t' -f1):$(echo "$line" | cut -d$'\t' -f2)
@@ -508,7 +508,7 @@ case "$1" in
     ls|list)
         #debug "$me: Listing patches for ${gerrit_project}..."
         shift
-        list_patches "project:${gerrit_project} ${@:-status:open}" | page
+        list_patches "${@}" | page
     ;;
     query)
         shift
