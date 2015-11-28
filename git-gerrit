@@ -200,7 +200,7 @@ query_patches() {
                                         -e email -uppp      \
                                 -e topic -u                 \
                                 | tr -d $'\t'               \
-                                | sed '$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;s/\n/\t/g' | grep -v '^$'
+                                | sed '$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;s/\n/\t/g' | grep -v '^$'
             done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
     echo -e "${parsed[@]}"
