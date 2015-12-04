@@ -18,6 +18,9 @@
 # End of copyright.
 
 # initialization
+type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
+. /usr/libexec/git/git-sh-setup
+
 # functions
 stderr() { # stderr <msg>
     echo "$@" >&2
@@ -112,9 +115,9 @@ parse_config() {
         die "No .gitreview config in top of work directory" $err_no_gitreview
     fi
 
-    gerrit_host=$(grep '^host=' "${gitreview}" | cut -d'=' -f2-)
-    gerrit_port=$(grep '^port=' "${gitreview}" | cut -d'=' -f2-)
-    gerrit_project=$(grep '^project=' "${gitreview}" | cut -d'=' -f2-)
+    gerrit_host=$(sane_grep '^host=' "${gitreview}" | cut -d'=' -f2-)
+    gerrit_port=$(sane_grep '^port=' "${gitreview}" | cut -d'=' -f2-)
+    gerrit_project=$(sane_grep '^project=' "${gitreview}" | cut -d'=' -f2-)
     if [[ -z "$gerrit_port" || "$gerrit_port" == "$gerrit_host" ]];then
         gerrit_port="29418"
     fi
@@ -140,14 +143,6 @@ parse_config() {
                         "${git_dir}/hooks/commit-msg" >/dev/null 2>&1;then
             die "Failed to \`scp\` the Change-Id hook" $err_scp_failed
         fi
-    fi
-}
-
-page() {
-    if [[ -z "$@" ]];then
-        echo -n "$(</dev/stdin)" | ${GIT_PAGER:-${PAGER:-cat}}
-    else
-        ${GIT_PAGER:-${PAGER:-cat}} "$@"
     fi
 }
 
@@ -200,7 +195,7 @@ query_patches() {
                                         -e email -uppp      \
                                 -e topic -u                 \
                                 | tr -d $'\t'               \
-                                | sed '$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;s/\n/\t/g' | grep -v '^$'
+                                | sed '$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;$!N;s/\n/\t/g' | sane_grep -v '^$'
             done | sed 's#u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]#\\&#g'
     )
     echo -e "${parsed[@]}"
@@ -250,7 +245,7 @@ push_patch() {
     done
     debug "$me: Making sure you have the Change-Id on commits for Gerrit..."
     for change in $(git rev-list origin/${branch}..${current_branch});do
-        if [[ -z $(git show -s --format=%B "${change}" | grep '^Change-Id: ') ]];then
+        if [[ -z $(git show -s --format=%B "${change}" | sane_grep '^Change-Id: ') ]];then
             change=${change:0:7} # rebase uses short hashes
             debug "$me: Amending ${change} with Change-Id hook"
             OLD_EDITOR="${EDITOR}"
@@ -420,7 +415,7 @@ patch_exists() { # takes input from stdin, expects query_patches output, exits 1
     else
         local input=$(nonfatal query_patches "${1}")
     fi
-    if echo "$input" | cut -d$'\t' -f1 | grep -q "^${patch}$";then
+    if echo "$input" | cut -d$'\t' -f1 | sane_grep -q "^${patch}$";then
         debug "$me: Patch ${patch} exists on the Gerrit instance"
         return 0
     else
@@ -465,8 +460,6 @@ err_patches_failed=14
 err_prog_not_installed=70
 err_unknown_command=100
 
-# make sure that the programs we need are there
-type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
 type -fPp jshon >/dev/null 2>&1 || die "\`jshon\` isn't installed!" $err_prog_not_installed
 
 # special case
@@ -487,7 +480,7 @@ else
     die "You need to set a username to use; \`git config gitreview.username <username>\`" $err_no_username
 fi
 
-if [[ "$(git rev-parse --is-bare-repository)" == 'true' ]];then
+if [[ "$(is_bare_repository)" == true ]];then
     die "Cowardly refusing to operate on a bare repository" $err_bare_repo
 fi
 
@@ -508,21 +501,21 @@ case "$1" in
     ls|list)
         #debug "$me: Listing patches for ${gerrit_project}..."
         shift
-        list_patches "${@}" | page
+        list_patches "${@}" | git_pager
     ;;
     query)
         shift
         if [[ -z "$@" ]];then
             die "A query is required" $err_args
         fi
-        list_patches "$@" | page
+        list_patches "$@" | git_pager
     ;;
     info)
         shift
         if [[ -z "$@" ]];then
             die "A patch is required" $err_args
         fi
-        info_patches "$@" | page
+        info_patches "$@" | git_pager
     ;;
     get|pull)
         shift
