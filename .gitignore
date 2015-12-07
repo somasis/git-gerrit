@@ -1,5 +1,6 @@
 *.swp
 *~
+image/
+git-gerrit
 git-gerrit.1
 git-gerrit.1.html
-git-gerrit.orig
