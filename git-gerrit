@@ -469,6 +469,9 @@ elif [[ "$1" == "version" || "$1" == "--version" ]];then
     version
 fi
 
+# git-sh-setup wants only topdir by default
+SUBDIRECTORY_OK=true
+
 # sanity checks
 if ! git rev-parse --git-dir >/dev/null 2>&1;then
     die "Not a git repository" $err_not_git_dir
