@@ -19,6 +19,10 @@
 
 # initialization
 type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
+
+# git-sh-setup wants only topdir by default
+SUBDIRECTORY_OK=true
+
 . /usr/libexec/git/git-sh-setup
 
 # functions
@@ -468,9 +472,6 @@ if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]];then
 elif [[ "$1" == "version" || "$1" == "--version" ]];then
     version
 fi
-
-# git-sh-setup wants only topdir by default
-SUBDIRECTORY_OK=true
 
 # sanity checks
 if ! git rev-parse --git-dir >/dev/null 2>&1;then
