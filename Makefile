@@ -31,12 +31,19 @@ clean:
 
 build:	git-gerrit git-gerrit.1
 
+man:	git-gerrit.1
+
+html:	git-gerrit.1.html
+
 git-gerrit:		git-gerrit.in
 	sed -e "s/@@VERSION@@/$(VERSION)/g" git-gerrit.in > git-gerrit
 	chmod +x git-gerrit
 
 git-gerrit.1:	git-gerrit.1.ronn
 	ronn --pipe --roff --organization="git-gerrit $(VERSION)" git-gerrit.1.ronn > $@
+
+git-gerrit.1.html:	git-gerrit.1.ronn
+	ronn --pipe --html --organization="git-gerrit $(VERSION)" git-gerrit.1.ronn > $@
 
 install: git-gerrit git-gerrit.1
 	mkdir -p $(DESTDIR)$(bindir)
