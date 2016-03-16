@@ -539,6 +539,16 @@ case "$1" in
         fi
         review_patches "$action" "$@"
     ;;
+    -2,*|-1,*|0,*|+1,*|+2,*|submit,*|retest,*)
+        action="$1"; actions="${action/,/ }"
+        shift
+        if [[ -z "$@" ]];then
+            die "A patch is required" $err_args
+        fi
+        for action in ${actions};do
+            review_patches "$action" "$@"
+        done
+    ;;
     browse)
         shift
         open_patch_urls "$@"

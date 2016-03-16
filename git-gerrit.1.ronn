@@ -12,11 +12,9 @@
 
 `git gerrit` pull <patches|query>
 
-`git gerrit` <-2|-1|0|+1|+2> <patches|query>
+`git gerrit` <-2|-1|0|+1|+2|submit|retest> <patches|query>
 
-`git gerrit` retest <patches|query>
-
-`git gerrit` submit <patches|query>
+`git gerrit` <-2|-1|0|+1|+2|submit|retest>,... <patches|query>
 
 `git gerrit` ls [query]
 
@@ -105,6 +103,9 @@ If no command is given, `git-gerrit review` is the default action.
 - `-2`, `-1`, `0`, `+1`, `+2` <patches|query>:
     Apply the corrisponding Code-Review to each patch (or patch matching
     query) given.
+
+    Actions can be chained, too. For example, `git gerrit +2,submit <patch>`
+    would +2 and then submit <patch>.
 
 - `submit` <patches|query>:
     Submit each patch (or patch matching query) given to the upstream
