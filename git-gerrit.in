@@ -442,7 +442,7 @@ patch_exists() { # takes input from stdin, expects query_patches output, exits 1
         debug "$me: Patch ${patch} exists on the Gerrit instance"
         return 0
     else
-        die "$me: Patch ${patch} does not exist on the Gerrit instance" "$err_patch_nonexistent"
+        die "Patch ${patch} does not exist on the Gerrit instance" "$err_patch_nonexistent"
     fi
 }
 
