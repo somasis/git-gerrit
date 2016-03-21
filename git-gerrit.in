@@ -292,7 +292,7 @@ info_patches() { # info_patches <patches>
             project=$(echo "$line" | cut -d$'\t' -f3)
             branch=$(echo "$line" | cut -d$'\t' -f4)
             changeid=$(echo "$line" | cut -d$'\t' -f5)
-            status=$(echo "$line" | cut -d$'\t' -f6 | sed 's/.*/\L&/;s/[a-z]*/\u&/g')
+            status=$(echo "$line" | cut -d$'\t' -f6)
             url=$(echo "$line" | cut -d$'\t' -f7)
             ref=$(echo "$line" | cut -d$'\t' -f8)
             subject=$(echo "$line" | cut -d$'\t' -f9)
