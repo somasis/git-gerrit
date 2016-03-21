@@ -72,7 +72,7 @@ the workflow by needing web interface usage for simple tasks.
 
 Licensed under the ISC license.
 
-Copyright (c) 2015 Kylie McClain <somasis@exherbo.org>
+Copyright (c) 2015-2016 Kylie McClain <somasis@exherbo.org>
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -88,4 +88,4 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ## Author
 
-Written by Kylie McClain <somasis@exherbo.org>, 2015.
+Written by Kylie McClain <somasis@exherbo.org>, 2015-2016.
