@@ -359,8 +359,24 @@ review_patches() { # review_patches <action> <patches>
             action="--submit"
         ;;
         retest)
-            msg="Set patch #%s to Retest+1"
+            msg="Set patch #%s to Retest +1"
             action="--retest +1"
+        ;;
+        unretest)
+            msg="Set patch #%s to Retest 0"
+            action="--retest 0"
+        ;;
+        rebase)
+            msg="Rebased patch #%s"
+            action="--rebase"
+        ;;
+        abandon)
+            msg="Abandoned patch #%s"
+            action="--abandon"
+        ;;
+        restore)
+            msg="Restored patch #%s"
+            action="--restore"
         ;;
         *)
             die "$action is not a valid action" $err_review_failed
@@ -380,7 +396,7 @@ review_patches() { # review_patches <action> <patches>
         local query=$(query_patches "${patch}")
         patches=( $(echo "${query[@]}" | cut -d$'\t' -f1-2 | tr $'\t' ',') )
         for patch in ${patches[@]};do
-            gerrit review "${patch}" $action || die "Failed to run ${action} ${patch},${patchset}. Did you already submit it?" $err_review_failed
+            gerrit review "${patch}" --project "${gerrit_project}" $action || die "Failed to run ${action} ${patch},${patchset}. Did you already submit it?" $err_review_failed
             patch=${patch%,*}
             info $(printf "$me: ${msg}" "${patch}")
         done
@@ -531,7 +547,7 @@ case "$1" in
         fi
         get_patches "$@"
     ;;
-    -2|-1|0|+1|+2|submit|retest)
+    -2|-1|0|+1|+2|submit|retest|unretest|rebase|abandon|restore)
         action="$1"
         shift
         if [[ -z "$@" ]];then
@@ -539,7 +555,7 @@ case "$1" in
         fi
         review_patches "$action" "$@"
     ;;
-    -2,*|-1,*|0,*|+1,*|+2,*|submit,*|retest,*)
+    -2,*|-1,*|0,*|+1,*|+2,*|submit,*|retest,*|unretest,*|rebase,*|abandon,*|restore,*)
         action="$1"; actions="${action/,/ }"
         shift
         if [[ -z "$@" ]];then

@@ -12,9 +12,13 @@
 
 `git gerrit` pull <patches|query>
 
-`git gerrit` <-2|-1|0|+1|+2|submit|retest> <patches|query>
+`git gerrit` <-2|-1|0|+1|+2|submit> <patches|query>
 
-`git gerrit` <-2|-1|0|+1|+2|submit|retest>,... <patches|query>
+`git gerrit` <-2|-1|0|+1|+2|submit>,... <patches|query>
+
+`git gerrit` <retest|unretest|rebase|abandon|restore> <patches|query>
+
+`git gerrit` <retest|unretest|rebase|abandon|restore>,... <patches|query>
 
 `git gerrit` ls [query]
 
@@ -105,16 +109,33 @@ If no command is given, `git-gerrit review` is the default action.
     query) given.
 
     Actions can be chained, too. For example, `git gerrit +2,submit <patch>`
-    would +2 and then submit <patch>.
+    would +2 and then submit <patch>. This applies to submit, retest, unretest,
+    abandon, and restore as well.
 
 - `submit` <patches|query>:
     Submit each patch (or patch matching query) given to the upstream
     copy of the repository.
 
 - `retest` <patches|query>:
-    Apply Retest+1 to each patch (or patch matching query) given. This
-    probably only does anything if you have Jenkins integrated with your
-    Gerrit server.
+    Apply Retest +1 to each patch (or patch matching query) given. This
+    probably only does anything if you have a Continuous Integration server
+    integrated with your Gerrit instance, such as Jenkins.
+
+- `unretest` <patches|query>:
+    Apply Retest 0 to each patch (or patch matching query) given. This
+    probably only does anything if you have a Continuous Integration server
+    integrated with your Gerrit instance, such as Jenkins.
+
+- `rebase` <patches|query>:
+    Rebase each patch (or patch matching query) given. This doesn't modify
+    the local repository, it rebases only server-side, which could fail
+    and need to be done locally.
+
+- `abandon` <patches|query>:
+    Abandon each patch (or patch matching query) given.
+
+- `restore` <patches|query>:
+    Unabandon each patch (or patch matching query) given.
 
 - `ls`:
     An alias for `list`.
