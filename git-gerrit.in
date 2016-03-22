@@ -556,13 +556,13 @@ case "$1" in
         review_patches "$action" "$@"
     ;;
     -2,*|-1,*|0,*|+1,*|+2,*|submit,*|retest,*|unretest,*|rebase,*|abandon,*|restore,*)
-        action="$1"; actions="${action/,/ }"
+        actions="${1//,/ }"
         shift
         if [[ -z "$@" ]];then
             die "A patch is required" $err_args
         fi
         for action in ${actions};do
-            review_patches "$action" "$@"
+            review_patches "$action" "$@" || exit "$?"
         done
     ;;
     browse)
