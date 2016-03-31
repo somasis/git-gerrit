@@ -19,11 +19,12 @@
 
 # initialization
 type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
+type -fPp ssh >/dev/null 2>&1 || die "\`ssh\` isn't installed!" $err_prog_not_installed
 
 # git-sh-setup wants only topdir by default
 SUBDIRECTORY_OK=true
 
-. /usr/libexec/git/git-sh-setup
+. "@@libexecdir@@"/git/git-sh-setup
 
 # functions
 stderr() { # stderr <msg>

@@ -8,6 +8,7 @@ bindir?=$(exec_prefix)/bin
 datarootdir?=$(prefix)/share
 datadir?=$(datarootdir)
 docdir?=$(datarootdir)/doc/git-gerrit-$(VERSION)
+libexecdir?=$(exec_prefix)/libexec
 mandir?=$(datarootdir)/man
 man1dir?=$(mandir)/man1
 
@@ -18,6 +19,7 @@ all:
 		"prefix"		"$(prefix)"			\
 		"exec_prefix"	"$(exec_prefix)"	\
 		"bindir"		"$(bindir)"			\
+		"libexecdir"	"$(libexecdir)"		\
 		"datadir"		"$(datadir)"		\
 		"datarootdir"	"$(datarootdir)"	\
 		"docdir"		"$(docdir)"			\
@@ -36,7 +38,7 @@ man:	git-gerrit.1
 html:	git-gerrit.1.html
 
 git-gerrit:		git-gerrit.in
-	sed -e "s/@@VERSION@@/$(VERSION)/g" git-gerrit.in > git-gerrit
+	sed -e "s/@@VERSION@@/$(VERSION)/g" -e "s|@@libexecdir@@|$(libexecdir)|g" git-gerrit.in > git-gerrit
 	chmod +x git-gerrit
 
 git-gerrit.1:	git-gerrit.1.ronn
