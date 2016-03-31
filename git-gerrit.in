@@ -391,7 +391,7 @@ review_patches() { # review_patches <action> <patches>
             true
         elif ! is_integer "${patch}"; then
             if [[ "${patch}" != *:* ]];then
-                patch="status:open ${patch}"
+                patch="status:open project:${gerrit_project} ${patch}"
             fi
             info "$me: Getting patches matching \"${patch}\"..."
         else
