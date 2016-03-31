@@ -17,9 +17,9 @@
 #
 # End of copyright.
 
-# initialization
-type -fPp git >/dev/null 2>&1 || die "\`git\` isn't installed!" $err_prog_not_installed
-type -fPp ssh >/dev/null 2>&1 || die "\`ssh\` isn't installed!" $err_prog_not_installed
+# vars, shopts, etc
+me="git-gerrit"
+name=${me/-/ }
 
 # git-sh-setup wants only topdir by default
 SUBDIRECTORY_OK=true
@@ -466,10 +466,6 @@ diff_patches() {
         fi
     done
 }
-
-# vars, shopts, etc
-me="git-gerrit"
-name=${me/-/ }
 
 # error codes - don't set any of these 0 or 1, dummy
 err_not_git_dir=2
