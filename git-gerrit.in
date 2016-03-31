@@ -113,6 +113,10 @@ dossh() {
     ssh -p "${gerrit_port}" "${gerrit_username}@${gerrit_host}" "$@" 2>/dev/null; return $?
 }
 
+is_integer() {
+    echo "$@" | egrep -q '^[0-9]*$'
+}
+
 parse_config() {
     gitreview="${work_dir}/.gitreview"
     if [[ ! -f "${gitreview}" ]];then
@@ -207,7 +211,7 @@ query_patches() {
 
 list_patches() {
     for patch in "${@:-}";do
-        if [[ "${patch}" != *:* || "${patch}" != [0-9]* ]];then
+        if [[ "${patch}" != *:* ]] || ! is_integer "${patch}";then
             patch="status:open${patch:+ $patch}"
         fi
         query_patches "project:${gerrit_project}${patch:+ $patch}"
@@ -278,9 +282,9 @@ info_patches() { # info_patches <patches>
     # changenum|patchset|project|branch|changeid|status|url|ref|subject|owner|email|topic
     for patch in "$@";do
         debug "$me: Getting info about ${patch}..."
-        if [[ "${patch}" == [0-9]* ]] && patch_exists "project:${gerrit_project} ${patch}";then
+        if is_integer "${patch}" && patch_exists "project:${gerrit_project} ${patch}";then
             true
-        elif [[ "${patch}" != [0-9]* ]];then
+        elif ! is_integer "${patch}";then
             if [[ "${patch}" != *:* ]];then
                 patch="project:${gerrit_project} ${patch}"
             fi
@@ -316,12 +320,12 @@ info_patches() { # info_patches <patches>
 get_patches() { # get_patches <patches>
     tmp=$(mktmp)
     for patch in "${@}";do
-        if [[ "${patch}" == [0-9]* ]] && patch_exists "project:${gerrit_project} ${patch}";then
+        if is_integer "${patch}" && patch_exists "project:${gerrit_project} ${patch}";then
             debug "$me: Downloading patch ${patch}..."
             ref=$(query_patches "${patch}" | tail -1 | cut -d$'\t' -f8)
             git fetch $(config get remote.gerrit.url) "${ref}" 1>&2
             git format-patch -1 --stdout FETCH_HEAD >> "$tmp"
-        elif [[ "${patch}" != [0-9]* ]];then
+        elif ! is_integer "${patch}";then
             if [[ "${patch}" != *:* ]];then
                 patch="project:${gerrit_project} status:open ${patch}"
             fi
@@ -383,9 +387,9 @@ review_patches() { # review_patches <action> <patches>
         ;;
     esac
     for patch in "$@";do
-        if [[ "${patch}" == [0-9]* ]] && patch_exists "${patch}";then
+        if is_integer "${patch}" && patch_exists "${patch}";then
             true
-        elif [[ "${patch}" != [0-9]* ]];then
+        elif ! is_integer "${patch}"; then
             if [[ "${patch}" != *:* ]];then
                 patch="status:open ${patch}"
             fi
@@ -413,9 +417,9 @@ open_patch_urls() {
         return 0
     fi
     for patch in "$@";do
-        if [[ "${patch}" == [0-9]* ]] && patch_exists "${patch}";then
+        if is_integer "${patch}" && patch_exists "${patch}";then
             true
-        elif [[ "${patch}" != [0-9]* ]];then
+        elif ! is_integer "${patch}"; then
             if [[ "${patch}" != *:* ]];then
                 patch="project:${gerrit_project} status:open ${patch}"
             fi
@@ -449,7 +453,7 @@ patch_exists() { # takes input from stdin, expects query_patches output, exits 1
 diff_patches() {
     before=$(git rev-parse HEAD)
     for patch in "$@";do
-        if [[ "${patch}" == [0-9]* ]] && patch_exists "${patch}";then
+        if is_integer "${patch}" && patch_exists "${patch}";then
             nonfatal git stash >/dev/null 2>&1
             get_patches "$patch" || nonfatal git stash pop >/dev/null 2>&1 && return 1
             after=$(git rev-parse HEAD)
