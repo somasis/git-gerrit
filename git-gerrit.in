@@ -21,6 +21,13 @@
 me="git-gerrit"
 name=${me/-/ }
 
+commands=(
+    {,--}{help,version}
+    -{2,1} 0 +{1,2} submit {,un}retest rebase abandon restore
+    ls list info query
+    browse diff review push get pull
+)
+
 # git-sh-setup wants only topdir by default
 SUBDIRECTORY_OK=true
 
@@ -491,6 +498,11 @@ if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]];then
     man git-gerrit; exit $?
 elif [[ "$1" == "version" || "$1" == "--version" ]];then
     version
+elif [[ "$1" == 'print-commands' ]];then
+    for cmd in ${commands[@]};do
+        echo "$cmd"
+    done | sort -d
+    exit 0
 fi
 
 # sanity checks
