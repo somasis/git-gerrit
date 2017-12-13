@@ -31,7 +31,7 @@ commands=(
 # git-sh-setup wants only topdir by default
 SUBDIRECTORY_OK=true
 
-. "@@libexecdir@@"/git/git-sh-setup
+. "$(git --exec-path)/git-sh-setup"
 
 # functions
 stderr() { # stderr <msg>
